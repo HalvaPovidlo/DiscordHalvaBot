@@ -127,3 +127,8 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# Secret user files
+credentials.json
+token.pickle
+.idea/
