@@ -1,7 +1,7 @@
 import discord
 import collector
 from discord.ext import commands
-from config import settings
+from secretConfig import settings
 
 bot = commands.Bot(command_prefix=settings['prefix'])
 client = discord.Client()
