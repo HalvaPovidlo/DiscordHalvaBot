@@ -1,8 +1,8 @@
 from threading import Timer
 from threading import Lock
 
-import GoogleSheetsAPI as gs
-from GoogleSheetsAPI import Columns
+import google_sheets_api as gs
+from google_sheets_api import Columns
 
 songs_map = {}
 songs_list = gs.read_all_data()

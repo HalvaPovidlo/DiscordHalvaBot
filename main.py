@@ -1,5 +1,7 @@
 import discord
 import collector
+import general_messages as GM
+from pedo_detecter import detect
 from discord.ext import commands
 from secretConfig import discord_settings
 
@@ -13,9 +15,26 @@ async def hello(ctx):
     await ctx.send(f'Hello, {ctx.message.author.mention}!')
 
 
+def check_pedo(message):
+    if message.content != "":
+        value = detect(message.content.replace(',', ''))
+        print(message.content, value)
+        if value > 0.9:
+            return "С высокой вероятностью вы являеетесь педофилом " + message.author.mention
+    return ""
+
+
 @client.event
 async def on_message(message):
     if message.author == client.user:
+        return
+
+    response = check_pedo(message)
+    if response != "":
+        await message.channel.send(response)
+
+    if message.content.startswith("$help"):
+        await message.channel.send(GM.HELP_MESSAGE)
         return
 
     response = process_song(message)
