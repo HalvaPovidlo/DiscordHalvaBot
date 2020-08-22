@@ -4,26 +4,29 @@ import os.path
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
+from secretConfig import gsheets_settings
+from enum import Enum
+
+
+class Columns(Enum):
+    NAME = 0
+    LINK = 1
+    COUNTER = 2
+
 
 # If modifying these scopes, delete the file token.pickle.
-SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
+SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
 # The ID and range of a sample spreadsheet.
-SAMPLE_SPREADSHEET_ID = '1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgvE2upms'
-SAMPLE_RANGE_NAME = 'Class Data!A2:E'
+SPREADSHEET_ID = gsheets_settings['id']
+ALL_DATA_RANGE = 'A2:C100'
 
-def main():
-    """Shows basic usage of the Sheets API.
-    Prints values from a sample spreadsheet.
-    """
+
+def get_service():
     creds = None
-    # The file token.pickle stores the user's access and refresh tokens, and is
-    # created automatically when the authorization flow completes for the first
-    # time.
     if os.path.exists('token.pickle'):
         with open('token.pickle', 'rb') as token:
             creds = pickle.load(token)
-    # If there are no (valid) credentials available, let the user log in.
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
@@ -35,21 +38,40 @@ def main():
         with open('token.pickle', 'wb') as token:
             pickle.dump(creds, token)
 
-    service = build('sheets', 'v4', credentials=creds)
+    return build('sheets', 'v4', credentials=creds)
 
-    # Call the Sheets API
-    sheet = service.spreadsheets()
-    result = sheet.values().get(spreadsheetId=SAMPLE_SPREADSHEET_ID,
-                                range=SAMPLE_RANGE_NAME).execute()
-    values = result.get('values', [])
 
-    if not values:
-        print('No data found.')
-    else:
-        print('Name, Major:')
-        for row in values:
-            # Print columns A and E, which correspond to indices 0 and 4.
-            print('%s, %s' % (row[0], row[4]))
+service = get_service()
+
+
+def read_all_data():
+    result = service.spreadsheets().values().get(spreadsheetId=SPREADSHEET_ID, range=ALL_DATA_RANGE).execute()
+    return result.get('values', [])
+
+
+def write_all_data(data):
+    data = [
+        {
+            'range': ALL_DATA_RANGE,
+            'values': data
+        },
+    ]
+    body = {
+        'valueInputOption': 'RAW',
+        'data': data
+    }
+    result = service.spreadsheets().values().batchUpdate(
+        spreadsheetId=SPREADSHEET_ID, body=body).execute()
+    print('{0} cells updated.'.format(result.get('totalUpdatedCells')))
+
+
+def main():
+    values = read_all_data()
+    print(values)
+    values.sort(key=lambda x: int(x[Columns.COUNTER.value]))
+    print(values)
+    write_all_data(values)
+
 
 if __name__ == '__main__':
     main()
