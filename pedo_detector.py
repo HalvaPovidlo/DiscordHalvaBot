@@ -1,8 +1,9 @@
 import math
+import re
 import os.path
 from nltk.stem.snowball import SnowballStemmer
 
-path_weight = "secretData.csv
+path_weight = "secretData.csv"
 
 map_idf = {}
 
@@ -32,12 +33,13 @@ def sigmoid(x):
 def detect(s):
     if not IS_FILE:
         return 0;
-    
+
+    s = re.sub(r'[^\w]', ' ', s)
     arr = s.split(" ")
     summ = 0
     for n in arr:
         try:
-            summ = summ + map_idf[stemmer.stem(n)]
+            summ = summ + map_idf[stemmer.stem(n.lower())]
         except:
             continue
     return sigmoid(summ + b_0)

@@ -1,7 +1,7 @@
 import discord
 import collector
-import general_messages as GM
-from pedo_detecter import detect
+import general_messages as MESSAGES
+from pedo_detector import detect
 from discord.ext import commands
 from secretConfig import discord_settings
 
@@ -17,10 +17,10 @@ async def hello(ctx):
 
 def check_pedo(message):
     if message.content != "":
-        value = detect(message.content.replace(',', ''))
+        value = detect(message.content)
         print(message.content, value)
         if value > 0.9:
-            return "С высокой вероятностью вы являеетесь педофилом " + message.author.mention
+            return MESSAGES.PEDO_DETECTED + message.author.mention
     return ""
 
 
@@ -34,7 +34,12 @@ async def on_message(message):
         await message.channel.send(response)
 
     if message.content.startswith("$help"):
-        await message.channel.send(GM.HELP_MESSAGE)
+        await message.channel.send(MESSAGES.HELP)
+        return
+
+    if message.content.startswith("$sheet") or message.content.startswith("$table"):
+        await message.channel.send(
+            "https://docs.google.com/spreadsheets/d/163dwWivbX6tPkMgKZrLiNuxiIFaS0M5oENUuxTI2JSg/edit#gid=0")
         return
 
     response = process_song(message)
@@ -53,9 +58,9 @@ def process_song(message):
         counter = collector.collect_song(message)
 
     if counter == 0:
-        return "Произошла какая-то ошибка monkaS"
+        return MESSAGES.SONG_ERROR
     if counter == 1:
-        return "Новая песня добавлена peepoDance"
+        return MESSAGES.NEW_SONG
     return ""
 
 
