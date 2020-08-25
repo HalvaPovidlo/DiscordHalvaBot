@@ -8,6 +8,7 @@ from secretConfig import discord_settings
 bot = commands.Bot(command_prefix=discord_settings['prefix'])
 client = discord.Client()
 music_bot = 0
+DEBUG_MODE = False
 
 
 @bot.command()
@@ -23,9 +24,30 @@ def check_pedo(message):
     return ""
 
 
+def process_song(message):
+    counter = -1
+    global music_bot
+    if message.author == music_bot:
+        counter = collector.collect_song(message)
+    elif message.content.startswith('<:youtube:335112740957978625> **Searching**'):
+        music_bot = message.author
+        counter = collector.collect_song(message)
+
+    if counter == 0:
+        return MESSAGES.SONG_ERROR
+    if counter == 1:
+        return MESSAGES.NEW_SONG
+    return ""
+
+
 @client.event
 async def on_message(message):
     if message.author == client.user:
+        return
+
+    if DEBUG_MODE and str(message.channel) != 'debug':
+        return
+    if not DEBUG_MODE and str(message.channel) == 'debug':
         return
 
     response = check_pedo(message)
@@ -45,22 +67,6 @@ async def on_message(message):
     if response != "":
         await message.channel.send(response)
         return
-
-
-def process_song(message):
-    counter = -1
-    global music_bot
-    if message.author == music_bot:
-        counter = collector.collect_song(message)
-    elif message.content.startswith('<:youtube:335112740957978625> **Searching**'):
-        music_bot = message.author
-        counter = collector.collect_song(message)
-
-    if counter == 0:
-        return MESSAGES.SONG_ERROR
-    if counter == 1:
-        return MESSAGES.NEW_SONG
-    return ""
 
 
 if __name__ == '__main__':
