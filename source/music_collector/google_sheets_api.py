@@ -24,18 +24,21 @@ ALL_DATA_RANGE = 'A2:C100'
 
 def get_service():
     creds = None
-    if os.path.exists('token.pickle'):
-        with open('token.pickle', 'rb') as token:
+    file_dir = os.path.dirname(os.path.realpath(__file__))
+    creds_path = os.path.join(file_dir, 'credentials.json')
+    token_path = os.path.join(file_dir, 'token.pickle')
+    if os.path.exists(token_path):
+        with open(token_path, 'rb') as token:
             creds = pickle.load(token)
     if not creds or not creds.valid:
         if creds and creds.expired and creds.refresh_token:
             creds.refresh(Request())
         else:
             flow = InstalledAppFlow.from_client_secrets_file(
-                'credentials.json', SCOPES)
+                creds_path, SCOPES)
             creds = flow.run_local_server(port=0)
         # Save the credentials for the next run
-        with open('token.pickle', 'wb') as token:
+        with open(token_path, 'wb') as token:
             pickle.dump(creds, token)
 
     return build('sheets', 'v4', credentials=creds)
