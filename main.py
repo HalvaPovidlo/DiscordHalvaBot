@@ -1,7 +1,7 @@
 import discord
-import collector
+from music_collector import collector
 import general_messages as MESSAGES
-from pedo_detector import detect
+from dirty_talk_detector.dirty_talk_detector import detect
 from discord.ext import commands
 from secretConfig import discord_settings
 
@@ -18,9 +18,8 @@ async def hello(ctx):
 def check_pedo(message):
     if message.content != "":
         value = detect(message.content)
-        print(message.content, value)
         if value > 0.9:
-            return MESSAGES.PEDO_DETECTED + message.author.mention
+            return MESSAGES.PEDO_DETECTED + " " + message.author.mention
     return ""
 
 

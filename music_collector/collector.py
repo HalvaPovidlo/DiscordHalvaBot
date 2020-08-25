@@ -1,8 +1,8 @@
 from threading import Timer
 from threading import Lock
 
-import google_sheets_api as gs
-from google_sheets_api import Columns
+from music_collector import google_sheets_api as gs
+from music_collector.google_sheets_api import Columns
 
 songs_map = {}
 songs_list = gs.read_all_data()
@@ -29,6 +29,9 @@ def add_song_to_sheet(name, link=""):
     song_index = songs_map.get(name, -1)
     if song_index != -1:
         songs_list[song_index][Columns.COUNTER.value] += 1
+        if songs_list[song_index][Columns.LINK.value] == "" and link != "":
+            songs_list[song_index][Columns.LINK.value] = link
+
         return int(songs_list[song_index][Columns.COUNTER.value])
     else:
         songs_list.append([name, link, 1])
@@ -42,8 +45,11 @@ def update_sheet():
     global any_updates
     if any_updates:
         songs_list.sort(key=lambda x: int(x[Columns.COUNTER.value]), reverse=True)
-        gs.write_all_data(songs_list)
-        any_updates = False
+        try:
+            gs.write_all_data(songs_list)
+            any_updates = False
+        except:
+            print("ERROR acquired when gs.write_all_data(songs_list)")
     else:
         print("Nothing to update")
     any_updates_lock.release()
@@ -74,7 +80,8 @@ def collect_song(message):
         if linkStartIndex == -1:
             return -1
 
-        nameEndIndex = linkStartIndex - 2  # [song name](https://....
+        # [song name](https://....
+        nameEndIndex = linkStartIndex - 2
         if description[nameEndIndex] != ']':
             return -1
 

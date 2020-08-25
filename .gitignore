@@ -129,10 +129,11 @@ dmypy.json
 .pyre/
 
 # Secret files
-credentials.json
-token.pickle
+music_collector/credentials.json
+music_collector/token.pickle
 secretConfig.py
-secretData.csv
+dirty_talk_detector/secretData.csv
+AllBinaries/
 
 # Idea
 .idea/
