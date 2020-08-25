@@ -4,6 +4,7 @@ import general_messages as MESSAGES
 from dirty_talk_detector.dirty_talk_detector import detect
 from discord.ext import commands
 from secretConfig import discord_settings
+import utilities as utl
 
 bot = commands.Bot(command_prefix=discord_settings['prefix'])
 client = discord.Client()
@@ -16,15 +17,20 @@ async def hello(ctx):
     await ctx.send(f'Hello, {ctx.message.author.mention}!')
 
 
-def check_pedo(message):
+def check_dirty(message):
     if message.content != "":
         value = detect(message.content)
         if value > 0.9:
-            return MESSAGES.PEDO_DETECTED + " " + message.author.mention
+            return MESSAGES.DIRTY_DETECTED + " " + message.author.mention
     return ""
 
 
-def process_song(message):
+async def add_reactions(message, emoji_list):
+    for e in emoji_list:
+        await message.add_reaction(e)
+
+
+async def process_song(message):
     counter = -1
     global music_bot
     if message.author == music_bot:
@@ -33,11 +39,26 @@ def process_song(message):
         music_bot = message.author
         counter = collector.collect_song(message)
 
+    if counter == -1:
+        return False
     if counter == 0:
-        return MESSAGES.SONG_ERROR
-    if counter == 1:
-        return MESSAGES.NEW_SONG
-    return ""
+        await message.channel.send(MESSAGES.SONG_ERROR)
+    else:
+        if counter == 1:
+            await message.channel.send(MESSAGES.NEW_SONG)
+        await add_reactions(message, utl.number_as_emojis(counter))
+    return True
+
+
+async def process_command(message):
+    if message.content.startswith("$help"):
+        await message.channel.send(MESSAGES.HELP)
+        return
+
+    if message.content.startswith("$sheet") or message.content.startswith("$table"):
+        await message.channel.send(
+            "https://docs.google.com/spreadsheets/d/163dwWivbX6tPkMgKZrLiNuxiIFaS0M5oENUuxTI2JSg/edit#gid=0")
+        return
 
 
 @client.event
@@ -50,22 +71,16 @@ async def on_message(message):
     if not DEBUG_MODE and str(message.channel) == 'debug':
         return
 
-    response = check_pedo(message)
+    print(message.content)
+    response = check_dirty(message)
     if response != "":
         await message.channel.send(response)
 
-    if message.content.startswith("$help"):
-        await message.channel.send(MESSAGES.HELP)
+    if message.content.startswith("$"):
+        await process_command(message)
         return
 
-    if message.content.startswith("$sheet") or message.content.startswith("$table"):
-        await message.channel.send(
-            "https://docs.google.com/spreadsheets/d/163dwWivbX6tPkMgKZrLiNuxiIFaS0M5oENUuxTI2JSg/edit#gid=0")
-        return
-
-    response = process_song(message)
-    if response != "":
-        await message.channel.send(response)
+    if await process_song(message):
         return
 
 
