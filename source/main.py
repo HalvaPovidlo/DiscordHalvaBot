@@ -6,15 +6,9 @@ from discord.ext import commands
 from secretConfig import discord_settings
 import utilities as utl
 
-bot = commands.Bot(command_prefix=discord_settings['prefix'])
 client = discord.Client()
 music_bot = 0
 DEBUG_MODE = False
-
-
-@bot.command()
-async def hello(ctx):
-    await ctx.send(f'Hello, {ctx.message.author.mention}!')
 
 
 def check_dirty(message):
@@ -86,4 +80,3 @@ async def on_message(message):
 
 if __name__ == '__main__':
     client.run(discord_settings['token'])
-    bot.run(discord_settings['token'])
