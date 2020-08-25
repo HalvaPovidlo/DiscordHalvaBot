@@ -1,8 +1,8 @@
 from threading import Timer
 from threading import Lock
 
-from source.music_collector import google_sheets_api as gs
-from source.music_collector.google_sheets_api import Columns
+from music_collector import google_sheets_api as gs
+from music_collector.google_sheets_api import Columns
 
 songs_map = {}
 songs_list = gs.read_all_data()

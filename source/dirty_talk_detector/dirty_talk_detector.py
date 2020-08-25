@@ -32,7 +32,7 @@ def sigmoid(x):
 
 def detect(s):
     if not IS_FILE:
-        return 0;
+        return 0
 
     s = re.sub(r'[^\w]', ' ', s)
     arr = s.split(" ")

@@ -1,9 +1,9 @@
 import discord
-from source.music_collector import collector
-from source import general_messages as MESSAGES
-from source.dirty_talk_detector.dirty_talk_detector import detect
+from music_collector import collector
+import general_messages as MESSAGES
+from dirty_talk_detector.dirty_talk_detector import detect
 from discord.ext import commands
-from source.secretConfig import discord_settings
+from secretConfig import discord_settings
 
 bot = commands.Bot(command_prefix=discord_settings['prefix'])
 client = discord.Client()
