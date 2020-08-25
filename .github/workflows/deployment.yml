@@ -1,0 +1,21 @@
+name: Deploy to server
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Deployment with rsync
+      shell: bash
+      env:
+        S_NAME: ${{ secrets.SERVER_NAME }}
+        S_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
+      run: |
+       sshpass -p "%S_PASSWORD%" rsync -avze 'ssh -o StrictHostKeyChecking=no' source/* "%S_NAME%":~/DiscordHalvaBot/
+       sshpass -p "%S_PASSWORD%" ssh "%S_NAME%" ~/DiscordHalvaBot/runBot.sh
