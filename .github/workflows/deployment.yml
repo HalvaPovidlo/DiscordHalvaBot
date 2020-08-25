@@ -17,5 +17,5 @@ jobs:
         S_NAME: ${{ secrets.SERVER_NAME }}
         S_PASSWORD: ${{ secrets.SERVER_PASSWORD }}
       run: |
-       sshpass -p "%S_PASSWORD%" rsync -avze 'ssh -o StrictHostKeyChecking=no' source/* "%S_NAME%":~/DiscordHalvaBot/
-       sshpass -p "%S_PASSWORD%" ssh "%S_NAME%" ~/DiscordHalvaBot/runBot.sh
+       sshpass -p "$S_PASSWORD" rsync -avze 'ssh -o StrictHostKeyChecking=no' source/* "$S_NAME":~/DiscordHalvaBot/
+       sshpass -p "$S_PASSWORD" ssh "$S_NAME" ~/DiscordHalvaBot/runBot.sh
