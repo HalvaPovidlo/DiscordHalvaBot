@@ -1,3 +1,12 @@
+from enum import Enum
+
+
+class Status(Enum):
+    NO_SONG = -1
+    ERROR = 0
+    SUCCESS = 1
+
+
 def digit_as_emoji(digit):
     return {
         1: '1️⃣',

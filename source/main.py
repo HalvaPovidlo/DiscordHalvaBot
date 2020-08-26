@@ -28,14 +28,13 @@ async def process_song(message):
     counter = -1
     global music_bot
     if message.author == music_bot:
-        counter = collector.collect_song(message)
+        counter = manager.collect_song(message)
     elif message.content.startswith('<:youtube:335112740957978625> **Searching**'):
         music_bot = message.author
-        counter = collector.collect_song(message)
 
-    if counter == -1:
+    if counter == utl.Status.NO_SONG.value:
         return False
-    if counter == 0:
+    if counter == utl.Status.ERROR.value:
         await message.channel.send(MESSAGES.SONG_ERROR)
     else:
         if counter == 1:
@@ -45,13 +44,19 @@ async def process_song(message):
 
 
 async def process_command(message):
-    if message.content.startswith("$help"):
+    text = message.content
+    prefix = discord_settings['prefix']
+    if text.startswith(prefix + "help"):
         await message.channel.send(MESSAGES.HELP)
         return
 
-    if message.content.startswith("$sheet") or message.content.startswith("$table"):
+    if text.startswith(prefix + "sheet") or text.startswith(prefix + "table"):
         await message.channel.send(
-            "https://docs.google.com/spreadsheets/d/163dwWivbX6tPkMgKZrLiNuxiIFaS0M5oENUuxTI2JSg/edit#gid=0")
+            "https://docs.google.com/spreadsheets/d/" + gsheets_settings['id'] + "/edit#gid=0")
+        return
+
+    if text.startswith(prefix + "random"):
+        await message.channel.send(manager.random_songs_to_play())
         return
 
 
@@ -70,7 +75,7 @@ async def on_message(message):
     if response != "":
         await message.channel.send(response)
 
-    if message.content.startswith("$"):
+    if message.content.startswith(discord_settings['prefix']):
         await process_command(message)
         return
 
