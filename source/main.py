@@ -1,9 +1,9 @@
 import discord
-from music_collector import collector
+from music_manager import manager
 import general_messages as MESSAGES
 from dirty_talk_detector.dirty_talk_detector import detect
-from discord.ext import commands
 from secretConfig import discord_settings
+from secretConfig import gsheets_settings
 import utilities as utl
 
 client = discord.Client()
@@ -27,7 +27,7 @@ async def add_reactions(message, emoji_list):
 async def process_song(message):
     counter = -1
     global music_bot
-    if message.author == music_bot:
+    if message.author == music_bot and not DEBUG_MODE:
         counter = manager.collect_song(message)
     elif message.content.startswith('<:youtube:335112740957978625> **Searching**'):
         music_bot = message.author
