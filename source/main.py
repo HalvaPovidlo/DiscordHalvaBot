@@ -27,7 +27,7 @@ async def add_reactions(message, emoji_list):
 async def process_song(message):
     counter = -1
     global music_bot
-    if message.author == music_bot:
+    if message.author == music_bot and not DEBUG_MODE:
         counter = manager.collect_song(message)
     elif message.content.startswith('<:youtube:335112740957978625> **Searching**'):
         music_bot = message.author
