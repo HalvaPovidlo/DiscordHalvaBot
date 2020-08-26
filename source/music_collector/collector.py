@@ -13,6 +13,7 @@ update_timer = None
 
 def create_songs_map():
     global songs_map
+    songs_map = {}
     for i in range(len(songs_list)):
         songs_list[i][Columns.COUNTER.value] = int(songs_list[i][Columns.COUNTER.value])
         songs_map[songs_list[i][Columns.NAME.value]] = i
@@ -45,6 +46,7 @@ def update_sheet():
     global any_updates
     if any_updates:
         songs_list.sort(key=lambda x: int(x[Columns.COUNTER.value]), reverse=True)
+        create_songs_map()
         try:
             gs.write_all_data(songs_list)
             any_updates = False
