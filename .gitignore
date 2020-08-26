@@ -129,8 +129,8 @@ dmypy.json
 .pyre/
 
 # Secret files
-source/music_collector/credentials.json
-source/music_collector/token.pickle
+source/music_manager/credentials.json
+source/music_manager/token.pickle
 source/secretConfig.py
 source/dirty_talk_detector/secretData.csv
 

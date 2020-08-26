@@ -1,8 +1,10 @@
 from threading import Timer
 from threading import Lock
+import random
 
-from music_collector import google_sheets_api as gs
-from music_collector.google_sheets_api import Columns
+from music_manager import google_sheets_api as gs
+from music_manager.google_sheets_api import Columns
+from utilities import Status
 
 songs_map = {}
 songs_list = gs.read_all_data()
@@ -29,9 +31,13 @@ def add_song_to_sheet(name, link=""):
 
     song_index = songs_map.get(name, -1)
     if song_index != -1:
-        songs_list[song_index][Columns.COUNTER.value] += 1
-        if songs_list[song_index][Columns.LINK.value] == "" and link != "":
-            songs_list[song_index][Columns.LINK.value] = link
+        song = songs_list[song_index]
+        if song[Columns.NAME.value] != name:
+            return Status.ERROR.value
+
+        song[Columns.COUNTER.value] += 1
+        if song[Columns.LINK.value] == "" and link != "":
+            song[Columns.LINK.value] = link
 
         return int(songs_list[song_index][Columns.COUNTER.value])
     else:
@@ -80,22 +86,22 @@ def collect_song(message):
 
         linkStartIndex = description.find('https://www.youtube.com')
         if linkStartIndex == -1:
-            return -1
+            return Status.NO_SONG.value
 
         # [song name](https://....
         nameEndIndex = linkStartIndex - 2
         if description[nameEndIndex] != ']':
-            return -1
+            return Status.NO_SONG.value
 
         name = description[description.find('[') + 1:nameEndIndex]
         link = description[linkStartIndex:description.rfind(')')]
     else:
-        return -1
+        return Status.NO_SONG.value
 
     print('name: ' + name)
     print('link: ' + link)
 
-    response = -1
+    response = Status.NO_SONG.value
     if name != '':
         response = add_song_to_sheet(name, link)
         any_updates_lock.acquire()
@@ -106,5 +112,10 @@ def collect_song(message):
     return response
 
 
-if __name__ == '__main__':
-    print("Hello World!!!")
+# Returns list of songs to play
+def random_songs_to_play(number=1):
+    number %= len(songs_list)
+    songsToPlay = ""
+    for i in range(number):
+        songsToPlay += "`!play " + songs_list[random.randint(0, len(songs_list))][Columns.NAME.value] + "`\n"
+    return songsToPlay
