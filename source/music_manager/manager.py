@@ -12,6 +12,8 @@ any_updates = False
 any_updates_lock = Lock()
 update_timer = None
 
+MAX_SONGS_FROM_RANDOM = 10
+
 
 def create_songs_map():
     global songs_map
@@ -112,10 +114,11 @@ def collect_song(message):
     return response
 
 
-# Returns list of songs to play
+# Returns message with songs to play
 def random_songs_to_play(number=1):
     number %= len(songs_list)
-    songsToPlay = ""
+    number %= MAX_SONGS_FROM_RANDOM
+    songs_to_play = ""
     for i in range(number):
-        songsToPlay += "`!play " + songs_list[random.randint(0, len(songs_list))][Columns.NAME.value] + "`\n"
-    return songsToPlay
+        songs_to_play += "`!play " + songs_list[random.randint(0, len(songs_list))][Columns.NAME.value] + "`\n"
+    return songs_to_play
