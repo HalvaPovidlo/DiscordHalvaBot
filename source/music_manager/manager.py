@@ -9,8 +9,9 @@ from utilities import Status
 songs_map = {}
 songs_list = gs.read_all_data()
 any_updates = False
-any_updates_lock = Lock()
-update_timer = None
+read_write_sheet_lock = Lock()
+write_timer = None
+load_timer = None
 
 MAX_SONGS_FROM_RANDOM = 10
 
@@ -49,33 +50,56 @@ def add_song_to_sheet(name, link=""):
 
 
 def update_sheet():
-    print("Updating...")
-    any_updates_lock.acquire()
-    global any_updates
-    if any_updates:
-        songs_list.sort(key=lambda x: int(x[Columns.COUNTER.value]), reverse=True)
+    read_write_sheet_lock.acquire()
+    print("Updating remote...")
+    try:
+        global any_updates
+        if any_updates:
+            songs_list.sort(key=lambda x: int(x[Columns.COUNTER.value]), reverse=True)
+            create_songs_map()
+            try:
+                gs.write_all_data(songs_list)
+                any_updates = False
+            except:
+                print("ERROR acquired when gs.write_all_data(songs_list)")
+        else:
+            print("Nothing to update")
+    except:
+        print("ERROR in update_sheet")
+    read_write_sheet_lock.release()
+
+
+def update_local_data():
+    read_write_sheet_lock.acquire()
+    print("Updating local...")
+    global songs_list
+    try:
+        new_songs_list = gs.read_all_data()
+        print("Local vs remote difference: ", len(songs_list) - len(new_songs_list))
+        songs_list = new_songs_list
         create_songs_map()
-        try:
-            gs.write_all_data(songs_list)
-            any_updates = False
-        except:
-            print("ERROR acquired when gs.write_all_data(songs_list)")
-    else:
-        print("Nothing to update")
-    any_updates_lock.release()
+    except:
+        print("ERROR acquired when gs.read_all_data()")
+    read_write_sheet_lock.release()
 
 
-def rerun_timer():
-    global update_timer
-    if update_timer:
-        update_timer.cancel()
+def rerun_timers():
+    global write_timer
+    global load_timer
 
-    update_timer = Timer(10.0, update_sheet)
-    update_timer.start()
+    if write_timer:
+        write_timer.cancel()
+    write_timer = Timer(10.0, update_sheet)
+    write_timer.start()
+
+    if load_timer:
+        load_timer.cancel()
+    load_timer = Timer(60.0, update_local_data)
+    load_timer.start()
 
 
 def collect_song(message):
-    rerun_timer()
+    rerun_timers()
     content = message.content
     print(content)
     name = ""
@@ -105,20 +129,21 @@ def collect_song(message):
 
     response = Status.NO_SONG.value
     if name != '':
+        read_write_sheet_lock.acquire()
         response = add_song_to_sheet(name, link)
-        any_updates_lock.acquire()
         global any_updates
         any_updates = True
-        any_updates_lock.release()
+        read_write_sheet_lock.release()
 
     return response
 
 
 # Returns message with songs to play
 def random_songs_to_play(number=1):
-    number %= len(songs_list)
     number %= MAX_SONGS_FROM_RANDOM
     songs_to_play = ""
+    read_write_sheet_lock.acquire()
     for i in range(number):
         songs_to_play += "`!play " + songs_list[random.randint(0, len(songs_list))][Columns.NAME.value] + "`\n"
+    read_write_sheet_lock.release()
     return songs_to_play
