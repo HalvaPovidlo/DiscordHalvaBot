@@ -21,7 +21,7 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
 # The ID and range of a sample spreadsheet.
 SPREADSHEET_ID = gsheets_settings['id']
-ALL_DATA_RANGE = 'A2:C100'
+ALL_DATA_RANGE = 'A2:C9999'
 
 
 def get_service():
