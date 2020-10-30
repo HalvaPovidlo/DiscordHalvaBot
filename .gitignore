@@ -136,3 +136,4 @@ source/dirty_talk_detector/secretData.csv
 
 # Idea
 .idea/
+.vscode/
