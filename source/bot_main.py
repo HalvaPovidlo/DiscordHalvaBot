@@ -56,6 +56,7 @@ async def sheet_error(ctx, error):
 
 @bot.command()
 async def random(ctx, songs_number: int = 1):
+    manager.rerun_timers()
     await ctx.send(manager.random_songs_to_play(songs_number))
 
 

@@ -23,7 +23,6 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 SPREADSHEET_ID = gsheets_settings['id']
 ALL_DATA_RANGE = 'A2:C9000'
 
-
 def get_service():
     creds = None
     file_dir = os.path.dirname(os.path.realpath(__file__))
