@@ -55,6 +55,16 @@ async def sheet_error(ctx, error):
 
 
 @bot.command()
+async def github(ctx):
+    await ctx.send(gm.GITHUB_LINK)
+
+
+@github.error
+async def github_error(ctx, error):
+    _log_error(ctx, error)
+
+
+@bot.command()
 async def random(ctx, songs_number: int = 1):
     manager.rerun_timers()
     await ctx.send(manager.random_songs_to_play(songs_number))
