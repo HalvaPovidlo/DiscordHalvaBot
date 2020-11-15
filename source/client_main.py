@@ -24,8 +24,12 @@ async def add_reactions(message, emoji_list):
         await message.add_reaction(e)
 
 
+def is_from_music_channel(msg):
+    return str(msg.channel) == 'music'
+
+
 async def delete_music_message(message):
-    if str(message.channel) != 'music':
+    if not is_from_music_channel(message):
         if message.author == music_bot or message.content.startswith("!play") or message.content.startswith("!fs"):
             await message.delete()
 
@@ -43,7 +47,7 @@ async def process_song(message):
     if counter == utl.Status.ERROR.value:
         await message.channel.send(gm.SONG_ERROR)
     else:
-        if counter == 1:
+        if counter == 1 and is_from_music_channel(message):
             await message.channel.send(gm.NEW_SONG)
         await add_reactions(message, utl.number_as_emojis(counter))
     return True
