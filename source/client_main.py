@@ -24,6 +24,12 @@ async def add_reactions(message, emoji_list):
         await message.add_reaction(e)
 
 
+async def delete_music_message(message):
+    if str(message.channel) != 'music':
+        if message.author == music_bot or message.content.startswith("!play") or message.content.startswith("!fs"):
+            await message.delete()
+
+
 async def process_song(message):
     counter = -1
     global music_bot
@@ -60,8 +66,9 @@ async def on_message(message):
     if response != "":
         await message.channel.send(response)
 
-    if await process_song(message):
-        return
+    await process_song(message)
+
+    await delete_music_message(message)
 
 
 if __name__ == '__main__':
