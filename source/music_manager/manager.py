@@ -36,6 +36,7 @@ def _add_song_to_sheet(name, link=""):
     if not songs_map:
         _create_songs_map()
 
+    today = date.today().strftime("%d/%m/%Y")
     song_index = songs_map.get(name, -1)
     if song_index != -1:
         song = songs_list[song_index]
@@ -46,9 +47,14 @@ def _add_song_to_sheet(name, link=""):
         if song[Columns.LINK.value] == "" and link != "":
             song[Columns.LINK.value] = link
 
-        return int(songs_list[song_index][Columns.COUNTER.value])
+        if len(song) < Columns.LAST_PLAY_DATE.value + 1:
+            song.append(today)
+        else:
+            song[Columns.LAST_PLAY_DATE.value] = today
+
+        return int(song[Columns.COUNTER.value])
     else:
-        songs_list.append([name, link, 1])
+        songs_list.append([name, link, 1, today])
         songs_map[name] = len(songs_list) - 1
         return 1
 
