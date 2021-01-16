@@ -14,6 +14,7 @@ class Columns(Enum):
     NAME = 0
     LINK = 1
     COUNTER = 2
+    LAST_PLAY_DATE = 3
 
 
 # If modifying these scopes, delete the file token.pickle.
@@ -21,7 +22,8 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
 # The ID and range of a sample spreadsheet.
 SPREADSHEET_ID = gsheets_settings['id']
-ALL_DATA_RANGE = 'A2:C9000'
+ALL_DATA_RANGE = 'A2:D9000'
+
 
 def get_service():
     creds = None
