@@ -5,9 +5,13 @@ import random
 from music_manager import google_sheets_api as gs
 from music_manager.google_sheets_api import Columns
 from utilities import Status
+from datetime import date
 
+# [name] -> position in songs_list
 songs_map = {}
 songs_list = gs.read_all_data()
+print("loaded " + str(len(songs_list)) + " songs")
+print("first song -", songs_list[0])
 any_updates = False
 read_write_sheet_lock = Lock()
 write_timer = None
