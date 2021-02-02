@@ -2,12 +2,11 @@
 
 ## Join all our teams
 
-Email me at andrei.khodko@gmail.com to be added to the Discord Developer Portal and Google API Console teams.
+Email me at andrei.khodko@gmail.com to be added to the [Discord Developer Portal](https://discord.com/developers/applications) and [Google API Console](https://console.developers.google.com) teams.
 
 ## Enable Discord
 
-You need to sign up at
-https://discord.com/developers/applications
+You need to sign up at [Discord Developer Portal](https://discord.com/developers/applications)
 
 And join our HPDevelopment team.
 
