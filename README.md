@@ -35,7 +35,7 @@ Applications -> HalvaBot -> Bot -> Click to reveal token
 
 In `secretConfig.py` replace `gsheets_settings.id` with the id of our table.
 
-Sign in to Google API Console 
+Sign in to [Google API Console](https://console.developers.google.com) 
 
 Credentials -> OAuth client -> DOWNLOAD JSON
 
