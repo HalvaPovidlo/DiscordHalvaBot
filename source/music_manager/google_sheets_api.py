@@ -8,6 +8,9 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
 from secretConfig import gsheets_settings
+from secretConfig import discord_settings
+
+DEBUG_MODE = discord_settings['debug']
 
 
 class Columns(Enum):
@@ -56,6 +59,9 @@ def read_all_data():
 
 
 def write_all_data(data):
+    if DEBUG_MODE:
+        return
+
     data = [
         {
             'range': ALL_DATA_RANGE,

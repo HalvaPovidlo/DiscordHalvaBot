@@ -18,6 +18,7 @@ write_timer = None
 load_timer = None
 
 MAX_SONGS_FROM_RANDOM = 10
+MAX_MESSAGE_LENGTH = 2000
 
 
 def _create_songs_map():
@@ -157,3 +158,20 @@ def random_songs_to_play(number=1):
         songs_to_play += "`!play " + songs_list[random.randint(0, len(songs_list))][Columns.NAME.value] + "`\n"
     read_write_sheet_lock.release()
     return songs_to_play
+
+
+# Return message with songs with substr query
+def find_songs(substr):
+    if len(substr) < 3:
+        return 'Укажите более 3 букв PepeHands'
+    substr = substr.lower()
+    result_songs = " "
+    read_write_sheet_lock.acquire()
+
+    for i in range(len(songs_list)):
+        if len(result_songs) + len(str(songs_list[i][Columns.NAME.value])) + 10 < MAX_MESSAGE_LENGTH:
+            if str(songs_list[i][Columns.NAME.value]).lower().find(substr) != -1:
+                result_songs += "`!play " + songs_list[i][Columns.NAME.value] + "`\n"
+
+    read_write_sheet_lock.release()
+    return result_songs

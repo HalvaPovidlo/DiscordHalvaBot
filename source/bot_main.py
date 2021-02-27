@@ -73,7 +73,21 @@ async def random(ctx, songs_number: int = 1):
 @random.error
 async def random_error(ctx, error):
     if isinstance(error, commands.BadArgument):
-        await ctx.send('Вторым аргументом должно быть число DansGame')
+        await ctx.send('Аргументом должно быть число DansGame')
+        return
+    _log_error(ctx, error)
+
+
+@bot.command()
+async def search(ctx, substr: str):
+    manager.rerun_timers()
+    await ctx.send(manager.find_songs(substr))
+
+
+@search.error
+async def search_error(ctx, error):
+    if isinstance(error, commands.BadArgument) or isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send('Аргументом должна быть строка DansGame')
         return
     _log_error(ctx, error)
 
