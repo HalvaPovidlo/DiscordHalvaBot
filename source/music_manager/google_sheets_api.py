@@ -58,7 +58,7 @@ def read_all_data():
 
 
 def write_all_data(data):
-    if DEBUG_MODE is False:
+    if !DEBUG_MODE:
         data = [
             {
                 'range': ALL_DATA_RANGE,
