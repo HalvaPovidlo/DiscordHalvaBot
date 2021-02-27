@@ -1,6 +1,7 @@
 import secretConfig
 px = secretConfig.discord_settings["prefix"]
 HELP = "`" + px + "random` - проиграть случайную песню из таблицы\n" \
+       "`" + px + "search` - выбрать все песни из таблицы по введенному слову\n" \
        "`" + px + "sheet` - получить ссылку на таблицу с песнями\n" \
        "`" + px + "github` - получить ссылку на код бота в github\n" \
        "`" + px + "guide` - чтобы увидеть это сообщение"
