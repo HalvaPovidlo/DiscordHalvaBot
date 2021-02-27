@@ -8,7 +8,9 @@ from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
 from secretConfig import gsheets_settings
+from secretConfig import discord_settings
 
+DEBUG_MODE = discord_settings['debug']
 
 class Columns(Enum):
     NAME = 0
@@ -56,19 +58,20 @@ def read_all_data():
 
 
 def write_all_data(data):
-    data = [
-        {
-            'range': ALL_DATA_RANGE,
-            'values': data
-        },
-    ]
-    body = {
-        'valueInputOption': 'RAW',
-        'data': data
-    }
-    result = service.spreadsheets().values().batchUpdate(
-        spreadsheetId=SPREADSHEET_ID, body=body).execute()
-    print('{0} cells updated.'.format(result.get('totalUpdatedCells')))
+    if DEBUG_MODE is False:
+        data = [
+            {
+                'range': ALL_DATA_RANGE,
+                'values': data
+            },
+        ]
+        body = {
+            'valueInputOption': 'RAW',
+            'data': data
+        }
+        result = service.spreadsheets().values().batchUpdate(
+            spreadsheetId=SPREADSHEET_ID, body=body).execute()
+        print('{0} cells updated.'.format(result.get('totalUpdatedCells')))
 
 
 def main():
