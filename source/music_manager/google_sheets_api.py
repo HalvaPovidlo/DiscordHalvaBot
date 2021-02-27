@@ -12,6 +12,7 @@ from secretConfig import discord_settings
 
 DEBUG_MODE = discord_settings['debug']
 
+
 class Columns(Enum):
     NAME = 0
     LINK = 1
@@ -58,20 +59,22 @@ def read_all_data():
 
 
 def write_all_data(data):
-    if !DEBUG_MODE:
-        data = [
-            {
-                'range': ALL_DATA_RANGE,
-                'values': data
-            },
-        ]
-        body = {
-            'valueInputOption': 'RAW',
-            'data': data
-        }
-        result = service.spreadsheets().values().batchUpdate(
-            spreadsheetId=SPREADSHEET_ID, body=body).execute()
-        print('{0} cells updated.'.format(result.get('totalUpdatedCells')))
+    if DEBUG_MODE:
+        return
+
+    data = [
+        {
+            'range': ALL_DATA_RANGE,
+            'values': data
+        },
+    ]
+    body = {
+        'valueInputOption': 'RAW',
+        'data': data
+    }
+    result = service.spreadsheets().values().batchUpdate(
+        spreadsheetId=SPREADSHEET_ID, body=body).execute()
+    print('{0} cells updated.'.format(result.get('totalUpdatedCells')))
 
 
 def main():
