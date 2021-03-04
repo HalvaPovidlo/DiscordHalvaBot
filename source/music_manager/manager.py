@@ -6,6 +6,7 @@ from music_manager import google_sheets_api as gs
 from music_manager.google_sheets_api import Columns
 from utilities import Status
 from datetime import date
+import general_messages as gm
 
 # [name] -> position in songs_list
 songs_map = {}
@@ -163,7 +164,7 @@ def random_songs_to_play(number=1):
 # Return message with songs with substr query
 def find_songs(substr):
     if len(substr) < 3:
-        return 'Укажите более 3 букв PepeHands'
+        return gm.SHORT_REQUEST
     substr = substr.lower()
     result_songs = " "
     read_write_sheet_lock.acquire()

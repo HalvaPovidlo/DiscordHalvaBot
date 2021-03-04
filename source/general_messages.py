@@ -8,9 +8,11 @@ HELP = "`" + px + "random` - проиграть случайную песню и
 
 DIRTY_DETECTED = "С высокой вероятностью, вы являеетесь педофилом"
 
-SONG_ERROR = "Произошла какая-то ошибка monkaS"
+SONG_ERROR = "Произошла какая-то ошибка <:monkaS:817041877718138891>"
 
-NEW_SONG = "Новая песня добавлена peepoDance"
+SHORT_REQUEST = "Напиши хотябы 3 буквы <:PepeHands:817043023056994351>"
+
+NEW_SONG = "Новая песня добавлена <a:PepoDance:817043023149793361>"
 
 SHEET_LINK = "https://docs.google.com/spreadsheets/d/" + secretConfig.gsheets_settings['id'] + "/edit#gid=0"
 

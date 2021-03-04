@@ -24,14 +24,19 @@ async def add_reactions(message, emoji_list):
         await message.add_reaction(e)
 
 
-def is_from_music_channel(msg):
+def is_from_music_channel(msg) -> bool:
     return str(msg.channel) == 'music'
 
 
+def is_from_debug_channel(msg) -> bool:
+    return str(msg.channel) == 'debug'
+
+
 async def delete_music_message(message):
-    if not is_from_music_channel(message):
-        if message.author == music_bot or message.content.startswith("!play") or message.content.startswith("!fs"):
-            await message.delete()
+    if is_from_music_channel(message) or is_from_debug_channel(message):
+        return
+    if message.author == music_bot or message.content.startswith("!play") or message.content.startswith("!fs"):
+        await message.delete()
 
 
 async def process_song(message):
@@ -47,14 +52,15 @@ async def process_song(message):
     if counter == utl.Status.ERROR.value:
         await message.channel.send(gm.SONG_ERROR)
     else:
-        if counter == 1 and is_from_music_channel(message):
+        if counter == 1 and (is_from_music_channel(message) or is_from_debug_channel(message)):
             await message.channel.send(gm.NEW_SONG)
         await add_reactions(message, utl.number_as_emojis(counter))
     return True
 
 
-def skip_message(message):
-    return message.author == client.user or DEBUG_MODE != (str(message.channel) == 'debug') or \
+def skip_message(message) -> bool:
+    return message.author == client.user or\
+           DEBUG_MODE != is_from_debug_channel(message) or\
            message.content.startswith(discord_settings['prefix'])
 
 
