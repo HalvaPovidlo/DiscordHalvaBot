@@ -5,6 +5,7 @@ import general_messages as gm
 from dirty_talk_detector.dirty_talk_detector import detect
 from secretConfig import discord_settings
 import utilities as utl
+from random import randint
 
 client = discord.Client()
 music_bot = 0
@@ -53,7 +54,7 @@ async def process_song(message):
         await message.channel.send(gm.SONG_ERROR)
     else:
         if counter == 1 and (is_from_music_channel(message) or is_from_debug_channel(message)):
-            await message.channel.send(gm.NEW_SONG)
+            await message.channel.send(gm.NEW_SONG[randint(0, len(gm.NEW_SONG) - 1)])
         await add_reactions(message, utl.number_as_emojis(counter))
     return True
 
