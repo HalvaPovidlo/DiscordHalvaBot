@@ -70,7 +70,8 @@ async def on_message(message):
     if skip_message(message):
         return
 
-    if message.content.lower().find("рус") != -1:
+    message_lower = message.content.lower()
+    if message_lower.find("рус") != -1 or message_lower.find("рос") != -1:
         await message.channel.send(message.author.mention + " РУССКИЕ ВПЕРЕД!!!")
 
     response = check_dirty(message)
