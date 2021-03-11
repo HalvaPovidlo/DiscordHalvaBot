@@ -78,7 +78,8 @@ def _update_sheet():
             print("Nothing to update")
     except:
         print("ERROR in update_sheet")
-    read_write_sheet_lock.release()
+    finally:
+        read_write_sheet_lock.release()
 
 
 def _update_local_data():
@@ -92,7 +93,8 @@ def _update_local_data():
         _create_songs_map()
     except:
         print("ERROR acquired when gs.read_all_data()")
-    read_write_sheet_lock.release()
+    finally:
+        read_write_sheet_lock.release()
 
 
 def rerun_timers():

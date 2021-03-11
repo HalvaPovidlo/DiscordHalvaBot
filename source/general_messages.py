@@ -12,7 +12,8 @@ SONG_ERROR = "Произошла какая-то ошибка <:monkaS:817041877
 
 SHORT_REQUEST = "Напиши хотя бы 3 буквы <:PepeHands:817043023056994351>"
 
-NEW_SONG = "Новая песня добавлена <a:PepoDance:817043023149793361>"
+NEW_SONG = ["Новая песня добавлена <a:PepoDance:817043023149793361>",
+            "Новая песня добавлена <a:catJAM:817043174840205312>"]
 
 SHEET_LINK = "https://docs.google.com/spreadsheets/d/" + secretConfig.gsheets_settings['id'] + "/edit#gid=0"
 
