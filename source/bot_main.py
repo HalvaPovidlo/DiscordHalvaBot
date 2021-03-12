@@ -6,6 +6,8 @@ from secretConfig import discord_settings
 
 
 bot = commands.Bot(command_prefix=discord_settings['prefix'])
+bot.remove_command('help')
+
 DEBUG_MODE = discord_settings['debug']
 
 
@@ -35,11 +37,11 @@ async def hello_error(ctx, error):
 
 
 @bot.command()
-async def guide(ctx):
+async def help(ctx):
     await ctx.send(gm.HELP)
 
 
-@guide.error
+@help.error
 async def guide_error(ctx, error):
     _log_error(ctx, error)
 
@@ -89,6 +91,16 @@ async def search_error(ctx, error):
     if isinstance(error, commands.BadArgument) or isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('Аргументом должна быть строка DansGame')
         return
+    _log_error(ctx, error)
+
+
+@bot.command()
+async def youtube(ctx):
+    await ctx.send(gm.YOUTUBE)
+
+
+@youtube.error
+async def youtube_error(ctx, error):
     _log_error(ctx, error)
 
 
