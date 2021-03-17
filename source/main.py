@@ -1,26 +1,36 @@
+import logging
+
+import discord
 from discord.ext import commands
 
 from music_manager import manager
 import general_messages as gm
+from music_manager.manager import MusicManager
 from secretConfig import discord_settings
+from message_handler import MessageHandler
 
-
+client = discord.Client()
 bot = commands.Bot(command_prefix=discord_settings['prefix'])
+
+music_manager = MusicManager()
+handler = MessageHandler(client, music_manager)
 bot.remove_command('help')
 
-DEBUG_MODE = discord_settings['debug']
+
+@client.event
+async def on_message(message):
+    await handler.process_message(message)
 
 
 def _log_error(ctx, error):
     if isinstance(error, commands.CheckFailure):
         return
-    print("ERROR: ", error)
-    print("In message: ", ctx.message.content)
+    logging.error("{err} in message: {msg}".format(err=error, msg=ctx.message.content))
 
 
 @bot.check
 async def globally_block_on_debug(ctx):
-    return DEBUG_MODE == (str(ctx.message.channel) == 'debug')
+    return discord_settings['debug'] == (str(ctx.message.channel) == 'debug')
 
 
 @bot.command()
@@ -68,8 +78,7 @@ async def github_error(ctx, error):
 
 @bot.command()
 async def random(ctx, songs_number: int = 1):
-    manager.rerun_timers()
-    await ctx.send(manager.random_songs_to_play(songs_number))
+    await ctx.send(music_manager.random_songs_to_play(songs_number))
 
 
 @random.error
@@ -81,9 +90,8 @@ async def random_error(ctx, error):
 
 
 @bot.command()
-async def search(ctx, substr: str):
-    manager.rerun_timers()
-    await ctx.send(manager.find_songs(substr))
+async def search(ctx, to_find: str):
+    await ctx.send(music_manager.find_songs(to_find))
 
 
 @search.error
@@ -103,6 +111,6 @@ async def youtube(ctx):
 async def youtube_error(ctx, error):
     _log_error(ctx, error)
 
-
 if __name__ == '__main__':
+    client.run(discord_settings['token'])
     bot.run(discord_settings['token'])
