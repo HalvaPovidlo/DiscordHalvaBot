@@ -1,25 +1,22 @@
 import logging
-
-import discord
 from discord.ext import commands
 
-from music_manager import manager
 import general_messages as gm
 from music_manager.manager import MusicManager
 from secretConfig import discord_settings
 from message_handler import MessageHandler
 
-client = discord.Client()
 bot = commands.Bot(command_prefix=discord_settings['prefix'])
 
 music_manager = MusicManager()
-handler = MessageHandler(client, music_manager)
+handler = MessageHandler(bot, music_manager)
 bot.remove_command('help')
 
 
-@client.event
 async def on_message(message):
     await handler.process_message(message)
+
+bot.add_listener(on_message, 'on_message')
 
 
 def _log_error(ctx, error):
@@ -111,6 +108,10 @@ async def youtube(ctx):
 async def youtube_error(ctx, error):
     _log_error(ctx, error)
 
-if __name__ == '__main__':
-    client.run(discord_settings['token'])
+
+def main():
     bot.run(discord_settings['token'])
+
+
+if __name__ == '__main__':
+    main()

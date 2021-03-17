@@ -29,8 +29,8 @@ class MessageHandler:
     async def delete_music_message(self, message):
         if is_from_music_channel(message) or is_from_debug_channel(message):
             return
-        if message.author == self._music_bot or\
-                message.content.startswith("!play") or\
+        if message.author == self._music_bot or \
+                message.content.startswith("!play") or \
                 message.content.startswith("!fs"):
             await message.delete()
 
@@ -39,7 +39,7 @@ class MessageHandler:
 
         if message.author == self._music_bot or message.content.startswith('<:youtube:335112740957978625> **Searching'):
             self._music_bot = message.author
-            counter = await MusicManager.collect_song(message)
+            counter = self._manager.collect_song(message)
 
         if counter == utl.Status.NO_SONG.value:
             return
@@ -52,8 +52,8 @@ class MessageHandler:
             await self.add_reactions(message, utl.number_as_emojis(counter))
 
     def skip_message(self, message) -> bool:
-        return message.author == self._client.user or\
-               self._is_debug_mode != is_from_debug_channel(message) or\
+        return message.author == self._client.user or \
+               self._is_debug_mode != is_from_debug_channel(message) or \
                message.content.startswith(discord_settings['prefix'])
 
     async def process_message(self, message):

@@ -1,4 +1,3 @@
-import asyncio
 import logging
 import random
 
@@ -6,6 +5,7 @@ from music_manager import google_sheets_api as gs
 from music_manager.google_sheets_api import Columns
 from utilities import Status
 from datetime import date
+from time import localtime
 import general_messages as gm
 
 MAX_SONGS_FROM_RANDOM = 10
@@ -16,8 +16,10 @@ class MusicManager:
     def __init__(self):
         self._songs_list = gs.read_all_data()
         logging.info("Loaded " + str(len(self._songs_list)) + " songs")
+        print("Loaded " + str(len(self._songs_list)) + " songs")
         self._songs_map = {}  # [name] -> position in songs_list
         self._any_updates = False
+        self._last_update = localtime().tm_min
 
     def _create_songs_map(self):
         self._songs_map = {}
@@ -52,8 +54,11 @@ class MusicManager:
             self._songs_map[name] = len(self._songs_list) - 1
             return 1
 
-    async def _update_sheet(self):
-        await asyncio.sleep(60)
+    def _update_sheet(self):
+        if localtime().tm_min - self._last_update <= 0:
+            return
+
+        self._last_update = localtime().tm_min
         logging.info("Updating remote...")
         print("Updating remote...")
         if self._any_updates:
@@ -69,7 +74,7 @@ class MusicManager:
             logging.info("Nothing to update")
             print("Nothing to update")
 
-    async def collect_song(self, message):
+    def collect_song(self, message):
         content = message.content
         link = ""
         if content.startswith('**Playing**'):
@@ -101,6 +106,7 @@ class MusicManager:
         if name != '':
             response = self._add_song_to_sheet(name, link)
             self._any_updates = True
+            self._update_sheet()
 
         return response
 
