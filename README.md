@@ -45,7 +45,7 @@ Run `client_main.py`.
 
 ## Required dependencies:
 ``` shell
-pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib discord nltk numpy
+pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib discord nltk numpy berserk
 ```
 
 ## Documentation
