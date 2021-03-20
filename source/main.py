@@ -5,6 +5,7 @@ import general_messages as gm
 from music_manager.manager import MusicManager
 from secretConfig import discord_settings
 from message_handler import MessageHandler
+from chess_manager import chess_manager
 
 bot = commands.Bot(command_prefix=discord_settings['prefix'])
 
@@ -106,6 +107,19 @@ async def youtube(ctx):
 
 @youtube.error
 async def youtube_error(ctx, error):
+    _log_error(ctx, error)
+
+
+@bot.command()
+async def chess(ctx, variant: str = None):
+    await ctx.send(chess_manager.create_game(variant))
+
+
+@chess.error
+async def chess_error(ctx, error):
+    if isinstance(error, commands.BadArgument):
+        await ctx.send('Неправильное название режима DansGame. Используй lowerCamelCase')
+        return
     _log_error(ctx, error)
 
 
