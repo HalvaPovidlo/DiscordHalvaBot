@@ -20,4 +20,4 @@ jobs:
         sudo apt-get install sshpass
         sshpass -p "$S_PASSWORD" rsync -avze 'ssh -o StrictHostKeyChecking=no' source/* "$S_NAME":~/discordBot/
     - name: Restart bot
-      run: sshpass -p "$S_PASSWORD" ssh -o StrictHostKeyChecking=no "$S_NAME" DiscordHalvaBot/restartBot.sh &
+      run: sshpass -p "$S_PASSWORD" ssh -o StrictHostKeyChecking=no "$S_NAME" ~/discordBot/restartBot.sh &
