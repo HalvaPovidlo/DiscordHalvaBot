@@ -1,5 +1,7 @@
 #!/bin/sh
 
+set -xuevo
+
 killall python
 . venv/bin/activate
 pip install --upgrade -r requirements.txt
