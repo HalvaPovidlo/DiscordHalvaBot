@@ -1,6 +1,9 @@
 #!/bin/bash
 
 killall python
-source /root/venv/bin/activate
+
+DIRNAME=$(dirname "$0")
+
+. "$DIRNAME"/venv/bin/activate
 pip install --upgrade -r requirements.txt
-nohup python "$(dirname "$0")/main.py" 1> bot.out 2> bot.err &
+nohup python "$DIRNAME/main.py" 1> bot.out 2> bot.err &
