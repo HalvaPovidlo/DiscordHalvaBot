@@ -25,7 +25,7 @@ gsheets_settings = {
     'id': '***',
 }
 ```
-Replace `token` with token from Discord Developer Portal
+Replace `token` with token from Discord Developer Portal.
 
 Applications -> HalvaBot -> Bot -> Click to reveal token
 
