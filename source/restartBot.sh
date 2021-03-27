@@ -6,4 +6,4 @@ DIRNAME=$(dirname "$0")
 
 . "$DIRNAME"/venv/bin/activate
 pip install --upgrade -r "$DIRNAME"/requirements.txt
-nohup python "$DIRNAME/main.py" 1> bot.out 2> bot.err &
+nohup python "$DIRNAME/main.py" 1> "$DIRNAME"/bot.log 2>$1 &
