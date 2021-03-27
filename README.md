@@ -43,11 +43,6 @@ Move the json file to `source/music_manager/` and rename it to `credentials.json
 
 Run `client_main.py`.
 
-## Required dependencies:
-``` shell
-pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib discord nltk numpy berserk
-```
-
 ## Documentation
 
 https://discordpy.readthedocs.io/en/latest/api.html

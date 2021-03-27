@@ -2,7 +2,7 @@ from random import randint
 
 from discord import Client
 
-from music_manager.manager import MusicManager
+from music_stats.music_manager import MusicManager
 import general_messages as gm
 from dirty_talk_detector.dirty_talk_detector import detect
 from secretConfig import discord_settings
