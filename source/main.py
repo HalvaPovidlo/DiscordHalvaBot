@@ -1,10 +1,6 @@
 import logging
 
 from discord.ext import commands
-import discord
-import youtube_dl
-from youtube_search import YoutubeSearch
-import os
 
 import general_messages as gm
 from music_player.player import MusicPlayer
@@ -16,8 +12,8 @@ from chess import chess_manager
 bot = commands.Bot(command_prefix=discord_settings['prefix'])
 bot.remove_command('help')
 
-music_player = MusicPlayer()
 music_manager = MusicManager()
+music_player = MusicPlayer(music_manager)
 handler = MessageHandler(bot, music_manager)
 
 
@@ -137,6 +133,96 @@ async def play(ctx, *song_str):
 
 @play.error
 async def play_error(ctx, error):
+    _log_error(ctx, error)
+
+
+@bot.command()
+async def shuffle(ctx):
+    await music_player.shuffle()
+
+
+@shuffle.error
+async def shuffle_error(ctx, error):
+    _log_error(ctx, error)
+
+
+@bot.command()
+async def skip(ctx):
+    music_player.skip()
+
+
+@skip.error
+async def skip_error(ctx, error):
+    _log_error(ctx, error)
+
+
+@bot.command()
+async def fs(ctx):
+    music_player.skip()
+
+
+@fs.error
+async def fs_error(ctx, error):
+    _log_error(ctx, error)
+
+
+@bot.command()
+async def loop(ctx):
+    music_player.loop()
+
+
+@loop.error
+async def loop_error(ctx, error):
+    _log_error(ctx, error)
+
+
+@bot.command()
+async def radio(ctx):
+    await music_player.enable_radio(ctx)
+
+
+@radio.error
+async def radio_error(ctx, error):
+    _log_error(ctx, error)
+
+
+@bot.command()
+async def stop(ctx):
+    music_player.stop()
+
+
+@stop.error
+async def stop_error(ctx, error):
+    _log_error(ctx, error)
+
+
+@bot.command()
+async def pause(ctx):
+    music_player.pause()
+
+
+@pause.error
+async def pause_error(ctx, error):
+    _log_error(ctx, error)
+
+
+@bot.command()
+async def resume(ctx):
+    music_player.resume()
+
+
+@resume.error
+async def resume_error(ctx, error):
+    _log_error(ctx, error)
+
+
+@bot.command()
+async def disconnect(ctx):
+    await music_player.disconnect()
+
+
+@disconnect.error
+async def disconnect_error(ctx, error):
     _log_error(ctx, error)
 
 

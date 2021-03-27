@@ -119,6 +119,9 @@ class MusicManager:
                              self._songs_list[random.randint(0, len(self._songs_list))][Columns.NAME.value] + "`\n"
         return songs_to_play
 
+    def radio_song(self):
+        return self._songs_list[random.randint(0, len(self._songs_list))][Columns.NAME.value]
+
     # Return message with songs with substr query
     def find_songs(self, to_find):
         if len(to_find) < 3:
