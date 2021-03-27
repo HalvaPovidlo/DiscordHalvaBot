@@ -1,4 +1,5 @@
 import logging
+
 from discord.ext import commands
 import discord
 import youtube_dl
@@ -6,16 +7,18 @@ from youtube_search import YoutubeSearch
 import os
 
 import general_messages as gm
+from music_player.player import MusicPlayer
 from music_stats.music_manager import MusicManager
 from secretConfig import discord_settings
 from message_handler import MessageHandler
 from chess import chess_manager
 
 bot = commands.Bot(command_prefix=discord_settings['prefix'])
+bot.remove_command('help')
 
+music_player = MusicPlayer()
 music_manager = MusicManager()
 handler = MessageHandler(bot, music_manager)
-bot.remove_command('help')
 
 
 async def on_message(message):
@@ -129,32 +132,7 @@ async def chess_error(ctx, error):
 
 @bot.command()
 async def play(ctx, *song_str):
-    if ctx.author.voice.channel:
-        if not ctx.guild.voice_client:
-            player = await ctx.author.voice.channel.connect()
-        else:
-            player = ctx.guild.voice_client
-        if ctx.guild.voice_client.is_playing():
-            return
-        os.remove("stubname.mp3")
-        search_song_name = ' '.join(song_str)
-        search_result = YoutubeSearch(search_song_name, max_results=1).to_dict()
-        result_song = search_result[0]
-        print(result_song['title'])
-        ydl_opts = {
-            'outtmpl': 'stubname.mp3',
-            'format': 'bestaudio/best',
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }]
-        }
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            ydl.download(['https://www.youtube.com/'+result_song['url_suffix']])
-        player.play(discord.FFmpegPCMAudio("stubname.mp3"))
-    else:
-        await ctx.send("Please connect to a voice channel.")
+    await music_player.process_song_request(ctx, ' '.join(song_str))
 
 
 @play.error
