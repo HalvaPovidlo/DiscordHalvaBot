@@ -2,10 +2,10 @@ import logging
 from discord.ext import commands
 
 import general_messages as gm
-from music_manager.manager import MusicManager
+from music_stats.music_manager import MusicManager
 from secretConfig import discord_settings
 from message_handler import MessageHandler
-from chess_manager import chess_manager
+from chess import chess_manager
 
 bot = commands.Bot(command_prefix=discord_settings['prefix'])
 

@@ -1,8 +1,8 @@
 import logging
 import random
 
-from music_manager import google_sheets_api as gs
-from music_manager.google_sheets_api import Columns
+from music_stats import google_sheets_api as gs
+from music_stats.google_sheets_api import Columns
 from utilities import Status
 from datetime import date
 from time import localtime
