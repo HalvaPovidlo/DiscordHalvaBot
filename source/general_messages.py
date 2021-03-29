@@ -39,4 +39,4 @@ ALL_LINKS = "`Песни:` <" + SHEET_LINK + ">\n" \
        "`Гитхаб:` <" + GITHUB_LINK + ">\n" \
        "`Ютуб 1:` <" + YOUTUBE_1 + ">\n" \
        "`Ютуб 2:` <" + YOUTUBE_2 + ">\n" \
-       "`Фильмы:` <" + FILMS_LINK + ">\n" \
+       "`Фильмы:` <" + FILMS_LINK + ">\n"
