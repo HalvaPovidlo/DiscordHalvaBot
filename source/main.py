@@ -1,21 +1,20 @@
 import logging
+
 from discord.ext import commands
-import discord
-import youtube_dl
-from youtube_search import YoutubeSearch
-import os
 
 import general_messages as gm
+from music_player.player import MusicPlayer
 from music_stats.music_manager import MusicManager
 from secretConfig import discord_settings
 from message_handler import MessageHandler
 from chess import chess_manager
 
 bot = commands.Bot(command_prefix=discord_settings['prefix'])
+bot.remove_command('help')
 
 music_manager = MusicManager()
+music_player = MusicPlayer(music_manager)
 handler = MessageHandler(bot, music_manager)
-bot.remove_command('help')
 
 
 async def on_message(message):
@@ -129,36 +128,101 @@ async def chess_error(ctx, error):
 
 @bot.command()
 async def play(ctx, *song_str):
-    if ctx.author.voice.channel:
-        if not ctx.guild.voice_client:
-            player = await ctx.author.voice.channel.connect()
-        else:
-            player = ctx.guild.voice_client
-        if ctx.guild.voice_client.is_playing():
-            return
-        os.remove("stubname.mp3")
-        search_song_name = ' '.join(song_str)
-        search_result = YoutubeSearch(search_song_name, max_results=1).to_dict()
-        result_song = search_result[0]
-        print(result_song['title'])
-        ydl_opts = {
-            'outtmpl': 'stubname.mp3',
-            'format': 'bestaudio/best',
-            'postprocessors': [{
-                'key': 'FFmpegExtractAudio',
-                'preferredcodec': 'mp3',
-                'preferredquality': '192',
-            }]
-        }
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            ydl.download(['https://www.youtube.com/'+result_song['url_suffix']])
-        player.play(discord.FFmpegPCMAudio("stubname.mp3"))
-    else:
-        await ctx.send("Please connect to a voice channel.")
+    await music_player.process_song_request(ctx, ' '.join(song_str))
 
 
 @play.error
 async def play_error(ctx, error):
+    _log_error(ctx, error)
+
+
+@bot.command()
+async def shuffle(ctx):
+    await music_player.shuffle()
+
+
+@shuffle.error
+async def shuffle_error(ctx, error):
+    _log_error(ctx, error)
+
+
+@bot.command()
+async def skip(ctx):
+    music_player.skip()
+
+
+@skip.error
+async def skip_error(ctx, error):
+    _log_error(ctx, error)
+
+
+@bot.command()
+async def fs(ctx):
+    music_player.skip()
+
+
+@fs.error
+async def fs_error(ctx, error):
+    _log_error(ctx, error)
+
+
+@bot.command()
+async def loop(ctx):
+    music_player.loop()
+
+
+@loop.error
+async def loop_error(ctx, error):
+    _log_error(ctx, error)
+
+
+@bot.command()
+async def radio(ctx):
+    await music_player.enable_radio(ctx)
+
+
+@radio.error
+async def radio_error(ctx, error):
+    _log_error(ctx, error)
+
+
+@bot.command()
+async def stop(ctx):
+    music_player.stop()
+
+
+@stop.error
+async def stop_error(ctx, error):
+    _log_error(ctx, error)
+
+
+@bot.command()
+async def pause(ctx):
+    music_player.pause()
+
+
+@pause.error
+async def pause_error(ctx, error):
+    _log_error(ctx, error)
+
+
+@bot.command()
+async def resume(ctx):
+    music_player.resume()
+
+
+@resume.error
+async def resume_error(ctx, error):
+    _log_error(ctx, error)
+
+
+@bot.command()
+async def disconnect(ctx):
+    await music_player.disconnect()
+
+
+@disconnect.error
+async def disconnect_error(ctx, error):
     _log_error(ctx, error)
 
 
