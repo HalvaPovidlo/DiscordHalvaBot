@@ -47,44 +47,57 @@ class MusicPlayer:
         self.is_radio = False
         self.manager = manager
 
-    def shuffle(self):
+    async def shuffle(self, ctx):
+        await ctx.send(pm.SHUFFLE)
         random.shuffle(self.playlist)
 
-    def skip(self):
-        self.player.stop()
+    async def skip(self, ctx):
+        await ctx.send(pm.SKIPPED)
+        await self.player.stop()
 
-    def loop(self):
+    async def loop(self, ctx):
         self.is_loop = not self.is_loop
+        if self.is_loop:
+            await ctx.send(pm.LOOP_ENABLED)
+        else:
+            await ctx.send(pm.LOOP_DISABLED)
 
     async def enable_radio(self, ctx):
         self.is_radio = not self.is_radio
-        if self.is_radio:
-            await ctx.send(pm.RADIO_ENABLED)
-            if self.player:
-                if not self.player.is_playing:
-                    print("starting")
-                    await self.process_song_request(ctx, self.manager.radio_song())
-            else:
-                await self.process_song_request(ctx, self.manager.radio_song())
-        else:
-            await ctx.send(pm.RADIO_DISABLED)
 
-    def stop(self):
+        if not self.is_radio:
+            await ctx.send(pm.RADIO_DISABLED)
+            return
+
+        if not await self._is_request_correct(ctx):
+            return
+
+        await self._update_player(ctx)
+
+        if not self.player.is_playing:
+            self._start_playlist_radio()
+
+        await ctx.send(pm.RADIO_ENABLED)
+
+    async def stop(self, ctx):
         self.is_loop = False
         self.is_radio = False
         self.playlist = []
         if self.player:
+            await ctx.send(pm.STOP)
             self.player.stop()
 
-    def pause(self):
+    async def pause(self, ctx):
         if self.player:
+            await ctx.send(pm.PAUSE)
             self.player.pause()
 
-    def resume(self):
+    async def resume(self, ctx):
+        await ctx.send(pm.RESUME)
         self.player.resume()
 
-    async def disconnect(self):
-        self.stop()
+    async def disconnect(self, ctx):
+        await self.stop(ctx)
         if self.player and self.player.is_connected():
             await self.player.disconnect()
 
@@ -96,20 +109,12 @@ class MusicPlayer:
         await self._update_player(ctx)
 
         await ctx.send(f"{pm.SEARCHING} {song_str}")
-        if self._find_and_queue_song(song_str):
-            if not self.player.is_playing():
-                self._play_next_song()
-            return
-        await ctx.send(pm.NO_MATCH)
-
-    def _find_and_queue_song(self, name) -> bool:
-        print("find_and_queue_song", name)
-        song = self.find_song(name)
-        print(song)
+        song = self._find_song(song_str)
         if song:
             self.playlist.append(song['url_suffix'])
-            return True
-        return False
+            self._start_playlist_radio()
+        else:
+            await ctx.send(pm.NO_MATCH)
 
     async def _update_player(self, ctx):
         if ctx.guild.voice_client:
@@ -126,13 +131,6 @@ class MusicPlayer:
             return False
         return True
 
-    def _play_next_song(self):
-        print("play_next_song", self.playlist)
-        if not self.player:
-            return
-        self.player.stop()
-        self._start_playlist_radio()
-
     def _on_song_stops(self, error):
         if error:
             print(error)
@@ -144,18 +142,21 @@ class MusicPlayer:
         self._start_playlist_radio()
 
     def _start_playlist_radio(self):
+        if self.player.is_playing:
+            return
+
         if len(self.playlist) == 0:
             if self.is_radio:
-                song = self.find_song(self.manager.radio_song())
+                song = self._find_song(self.manager.radio_song())
                 if song:
                     print(song)
-                    self._download_than_play(song['url_suffix'])
+                    self._download_then_play(song['url_suffix'])
         else:
             print(self.playlist)
-            self._download_than_play(self.playlist.pop(0))
+            self._download_then_play(self.playlist.pop(0))
 
     @staticmethod
-    def find_song(name):
+    def _find_song(name):
         song_info = YoutubeSearch(name, max_results=1).to_dict()
         print("YoutubeSearch(self.manager.radio_song()")
 
@@ -166,7 +167,7 @@ class MusicPlayer:
         else:
             return None
 
-    def _download_than_play(self, name):
+    def _download_then_play(self, name):
         while os.path.exists(stubfile):
             try:
                 os.remove(stubfile)
