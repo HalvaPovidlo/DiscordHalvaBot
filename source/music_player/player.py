@@ -48,6 +48,7 @@ class MusicPlayer:
         self.is_loop: bool = False
         self.is_radio: bool = False
         self.manager: MusicManager = manager
+        self.current_song: str = ""
 
     async def shuffle(self, ctx: Context):
         await ctx.send(pm.SHUFFLE)
@@ -98,7 +99,10 @@ class MusicPlayer:
             self.player.resume()
 
     async def current(self, ctx: Context):
-        await ctx.send("self.player.source")
+        if self.current_song != "":
+            await ctx.send(f"{pm.CURRENT} {self.current_song}")
+        else:
+            await ctx.send(pm.NO_CURRENT)
 
     async def disconnect(self, ctx: Context):
         await self.stop(ctx)
@@ -137,6 +141,7 @@ class MusicPlayer:
         return True
 
     def _on_song_stops(self, error):
+        self.current_song = ""
         if error:
             logging.error(error)
             print(error)
@@ -171,13 +176,14 @@ class MusicPlayer:
             song_info = YoutubeSearch(name, max_results=1).to_dict()
         except Exception:
             logging.error(f"YoutubeSearch({name}, max_results=1)")
-
-        if song_info[0]['url_suffix']:
-            if is_longer_than_max(song_info[0]['duration']):
+        finally:
+            print(song_info[0]['title'])
+            if song_info[0]['url_suffix']:
+                if is_longer_than_max(song_info[0]['duration']):
+                    return None
+                return song_info[0]
+            else:
                 return None
-            return song_info[0]
-        else:
-            return None
 
     def _download_then_play(self, name: str):
         while os.path.exists(stubfile):
@@ -188,5 +194,7 @@ class MusicPlayer:
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             print("youtube_dl.YoutubeDL(ydl_opts) as ydl")
-            ydl.download(['https://www.youtube.com/' + name])
+            to_download = 'https://www.youtube.com/' + name
+            ydl.download([to_download])
+            self.current_song = to_download
             self.player.play(discord.FFmpegPCMAudio(stubfile), after=self._on_song_stops)

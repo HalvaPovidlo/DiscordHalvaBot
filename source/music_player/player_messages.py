@@ -20,3 +20,6 @@ SHUFFLE = "**Playlist shuffled**"
 
 CONNECT_TO_CHANNEL = ":x2: **Please connect to a voice channel**"
 WRONG_CHANNEL = ":x2: **You need to be in the same voice channel as HalvaBot to use this command**"
+
+CURRENT = "**Now playing** :notes:"
+NO_CURRENT = "**No current songs**"
