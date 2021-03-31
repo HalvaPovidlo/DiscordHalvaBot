@@ -138,5 +138,6 @@ source/dirty_talk_detector/secretData.csv
 .idea/
 .vscode/
 
-# Executables
+# Binaries
 *.exe
+*.mp3

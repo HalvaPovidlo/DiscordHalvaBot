@@ -1,4 +1,3 @@
-import logging
 import os
 import random
 
@@ -17,7 +16,10 @@ radio
 
 """
 
+stubfile = "stubname.mp3"
+
 ydl_opts = {
+    'outtmpl': stubfile,
     'quiet': True,
     'format': 'bestaudio/best',
     'postprocessors': [{
@@ -43,8 +45,7 @@ class MusicPlayer:
         random.shuffle(self.playlist)
 
     def skip(self):
-        self.is_loop = False
-        self._play_next_song(0, is_skip=True)
+        self.player.stop()
 
     def loop(self):
         self.is_loop = not self.is_loop
@@ -56,6 +57,7 @@ class MusicPlayer:
             await ctx.send(":white_check_mark: Radio enabled")
             if self.player:
                 if not self.player.is_playing:
+                    print("starting")
                     await self.process_song_request(ctx, self.manager.radio_song())
             else:
                 await self.process_song_request(ctx, self.manager.radio_song())
@@ -90,7 +92,8 @@ class MusicPlayer:
 
         self._find_and_queue_song(song_str)
 
-        self._play_next_song(0)
+        if not self.player.is_playing():
+            self._play_next_song()
 
     def _radio(self):
         self._find_and_queue_song(self.manager.radio_song())
@@ -120,39 +123,45 @@ class MusicPlayer:
             return False
         return True
 
-    def _play_next_song(self, stub, is_skip: bool = False):
-        print("play_next_song", stub, is_skip)
-        print("play_next_song is_playing", self.player.is_playing())
-        print("play_next_song", self.playlist)
+    def _play_next_song(self):
+        print("playe_next_song", self.playlist)
         if not self.player:
             return
+        self.player.stop()
+        self.playlist_radio()
 
-        if self.player.is_playing():
-            if is_skip:
-                self.player.stop()
-                self._play_next_song(0, is_skip=True)  # hack to wait until actually stops
-            return
+        # after=self._play_next_song
+        # self.player.play(discord.FFmpegPCMAudio(stubfile), after=self.proxy)
 
-        stubfile = "stubname.mp3"
-        if self.is_loop and not is_skip:
+    def proxy(self, error):
+        if error:
+            print(error)
+
+        if self.is_loop:
             self.player.play(discord.FFmpegPCMAudio(stubfile), after=self._play_next_song)
             return
 
+        self.playlist_radio()
+
+    def playlist_radio(self):
         if len(self.playlist) == 0:
             if self.is_radio:
-                self._radio()
-                self._play_next_song(0)
-            return
+                song_info = YoutubeSearch(self.manager.radio_song(), max_results=1).to_dict()
+                print("YoutubeSearch(self.manager.radio_song()")
+                if song_info[0]['url_suffix']:
+                    self.download_play_file(song_info[0]['url_suffix'])
+        else:
+            print(self.playlist)
+            self.download_play_file(self.playlist.pop(0))
 
+    def download_play_file(self, name):
         while os.path.exists(stubfile):
             try:
                 os.remove(stubfile)
-            except Exception:
-                print("File is not released")
-
-        ydl_opts['outtmpl'] = stubfile
+            finally:
+                pass
 
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            ydl.download(['https://www.youtube.com/' + self.playlist.pop(0)])
-
-        self.player.play(discord.FFmpegPCMAudio(stubfile), after=self._play_next_song)
+            print("youtube_dl.YoutubeDL(ydl_opts) as ydl")
+            ydl.download(['https://www.youtube.com/' + name])
+            self.player.play(discord.FFmpegPCMAudio(stubfile), after=self.proxy)
