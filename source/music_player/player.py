@@ -2,22 +2,14 @@ import logging
 import os
 import random
 
-import discord
+from discord import VoiceClient
+from discord import FFmpegPCMAudio
 from discord.ext.commands import Context
 import youtube_dl
 from youtube_search import YoutubeSearch
 
 import music_player.player_messages as pm
 from music_stats.music_manager import MusicManager
-
-"""
-skip
-play
-loop
-shuffle
-radio
-
-"""
 
 stubfile = "stubname.mp3"
 
@@ -44,7 +36,7 @@ def is_longer_than_max(song_duration: str) -> bool:
 class MusicPlayer:
     def __init__(self, manager: MusicManager):
         self.playlist = []  # list of youtube song url_suffixes
-        self.player: discord.VoiceClient = None
+        self.player: VoiceClient = None
         self.is_loop: bool = False
         self.is_radio: bool = False
         self.manager: MusicManager = manager
@@ -147,7 +139,7 @@ class MusicPlayer:
             print(error)
 
         if self.is_loop:
-            self.player.play(discord.FFmpegPCMAudio(stubfile), after=self._on_song_stops)
+            self.player.play(FFmpegPCMAudio(stubfile), after=self._on_song_stops)
             return
 
         self._start_playlist_radio()
@@ -197,4 +189,4 @@ class MusicPlayer:
             to_download = 'https://www.youtube.com/' + name
             ydl.download([to_download])
             self.current_song = to_download
-            self.player.play(discord.FFmpegPCMAudio(stubfile), after=self._on_song_stops)
+            self.player.play(FFmpegPCMAudio(stubfile), after=self._on_song_stops)

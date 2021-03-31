@@ -1,5 +1,6 @@
 import logging
 
+from discord import Message
 from discord.ext import commands
 
 import general_messages as gm
@@ -17,7 +18,7 @@ music_player = MusicPlayer(music_manager)
 handler = MessageHandler(bot, music_manager)
 
 
-async def on_message(message):
+async def on_message(message: Message):
     await handler.process_message(message)
 
 bot.add_listener(on_message, 'on_message')
