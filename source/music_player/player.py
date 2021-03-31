@@ -5,6 +5,7 @@ import discord
 import youtube_dl
 from youtube_search import YoutubeSearch
 
+import music_player.player_messages as pm
 from music_stats.music_manager import MusicManager
 
 """
@@ -30,6 +31,14 @@ ydl_opts = {
 }
 
 
+def is_longer_than_max(song_duration: str) -> bool:
+    smh = song_duration.rsplit(":")
+    max_minutes = 20
+    if len(smh) > 1:
+        return int(smh[-2]) > max_minutes - 1
+    return False
+
+
 class MusicPlayer:
     def __init__(self, manager: MusicManager):
         self.playlist = []  # list of youtube song url_suffixes
@@ -37,9 +46,6 @@ class MusicPlayer:
         self.is_loop = False
         self.is_radio = False
         self.manager = manager
-
-    def queue_song(self, song):
-        self.playlist.append(song['url_suffix'])
 
     def shuffle(self):
         random.shuffle(self.playlist)
@@ -52,9 +58,8 @@ class MusicPlayer:
 
     async def enable_radio(self, ctx):
         self.is_radio = not self.is_radio
-        print("radio", self.is_radio)
         if self.is_radio:
-            await ctx.send(":white_check_mark: Radio enabled")
+            await ctx.send(pm.RADIO_ENABLED)
             if self.player:
                 if not self.player.is_playing:
                     print("starting")
@@ -62,7 +67,7 @@ class MusicPlayer:
             else:
                 await self.process_song_request(ctx, self.manager.radio_song())
         else:
-            await ctx.send(":x: Radio disabled")
+            await ctx.send(pm.RADIO_DISABLED)
 
     def stop(self):
         self.is_loop = False
@@ -90,23 +95,21 @@ class MusicPlayer:
 
         await self._update_player(ctx)
 
-        self._find_and_queue_song(song_str)
-
-        if not self.player.is_playing():
-            self._play_next_song()
-
-    def _radio(self):
-        self._find_and_queue_song(self.manager.radio_song())
-
-    def _find_and_queue_song(self, name):
-        print("find_and_queue_song", name)
-        song_info = YoutubeSearch(name, max_results=1).to_dict()
-        print(song_info)
-        if song_info:
-            song_info = song_info[0]
-        else:
+        await ctx.send(f"{pm.SEARCHING} {song_str}")
+        if self._find_and_queue_song(song_str):
+            if not self.player.is_playing():
+                self._play_next_song()
             return
-        self.queue_song(song_info)
+        await ctx.send(pm.NO_MATCH)
+
+    def _find_and_queue_song(self, name) -> bool:
+        print("find_and_queue_song", name)
+        song = self.find_song(name)
+        print(song)
+        if song:
+            self.playlist.append(song['url_suffix'])
+            return True
+        return False
 
     async def _update_player(self, ctx):
         if ctx.guild.voice_client:
@@ -124,37 +127,46 @@ class MusicPlayer:
         return True
 
     def _play_next_song(self):
-        print("playe_next_song", self.playlist)
+        print("play_next_song", self.playlist)
         if not self.player:
             return
         self.player.stop()
-        self.playlist_radio()
+        self._start_playlist_radio()
 
-        # after=self._play_next_song
-        # self.player.play(discord.FFmpegPCMAudio(stubfile), after=self.proxy)
-
-    def proxy(self, error):
+    def _on_song_stops(self, error):
         if error:
             print(error)
 
         if self.is_loop:
-            self.player.play(discord.FFmpegPCMAudio(stubfile), after=self._play_next_song)
+            self.player.play(discord.FFmpegPCMAudio(stubfile), after=self._on_song_stops)
             return
 
-        self.playlist_radio()
+        self._start_playlist_radio()
 
-    def playlist_radio(self):
+    def _start_playlist_radio(self):
         if len(self.playlist) == 0:
             if self.is_radio:
-                song_info = YoutubeSearch(self.manager.radio_song(), max_results=1).to_dict()
-                print("YoutubeSearch(self.manager.radio_song()")
-                if song_info[0]['url_suffix']:
-                    self.download_play_file(song_info[0]['url_suffix'])
+                song = self.find_song(self.manager.radio_song())
+                if song:
+                    print(song)
+                    self._download_than_play(song['url_suffix'])
         else:
             print(self.playlist)
-            self.download_play_file(self.playlist.pop(0))
+            self._download_than_play(self.playlist.pop(0))
 
-    def download_play_file(self, name):
+    @staticmethod
+    def find_song(name):
+        song_info = YoutubeSearch(name, max_results=1).to_dict()
+        print("YoutubeSearch(self.manager.radio_song()")
+
+        if song_info[0]['url_suffix']:
+            if is_longer_than_max(song_info[0]['duration']):
+                return None
+            return song_info[0]
+        else:
+            return None
+
+    def _download_than_play(self, name):
         while os.path.exists(stubfile):
             try:
                 os.remove(stubfile)
@@ -164,4 +176,4 @@ class MusicPlayer:
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             print("youtube_dl.YoutubeDL(ydl_opts) as ydl")
             ydl.download(['https://www.youtube.com/' + name])
-            self.player.play(discord.FFmpegPCMAudio(stubfile), after=self.proxy)
+            self.player.play(discord.FFmpegPCMAudio(stubfile), after=self._on_song_stops)
