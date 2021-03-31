@@ -120,7 +120,13 @@ class MusicManager:
         return songs_to_play
 
     def radio_song(self):
-        return self._songs_list[random.randint(0, len(self._songs_list))][Columns.NAME.value]
+        index_of_one = 0
+        while index_of_one < len(self._songs_list):
+            if self._songs_list[index_of_one][Columns.COUNTER.value] == 1:
+                break
+            index_of_one += 1
+
+        return self._songs_list[random.randrange(index_of_one)][Columns.NAME.value]
 
     # Return message with songs with substr query
     def find_songs(self, to_find):

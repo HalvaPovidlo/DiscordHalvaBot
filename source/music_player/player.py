@@ -1,7 +1,9 @@
+import logging
 import os
 import random
 
 import discord
+from discord.ext.commands import Context
 import youtube_dl
 from youtube_search import YoutubeSearch
 
@@ -42,27 +44,28 @@ def is_longer_than_max(song_duration: str) -> bool:
 class MusicPlayer:
     def __init__(self, manager: MusicManager):
         self.playlist = []  # list of youtube song url_suffixes
-        self.player = None  # VoiceClient
-        self.is_loop = False
-        self.is_radio = False
-        self.manager = manager
+        self.player: discord.VoiceClient = None
+        self.is_loop: bool = False
+        self.is_radio: bool = False
+        self.manager: MusicManager = manager
 
-    async def shuffle(self, ctx):
+    async def shuffle(self, ctx: Context):
         await ctx.send(pm.SHUFFLE)
         random.shuffle(self.playlist)
 
-    async def skip(self, ctx):
-        await ctx.send(pm.SKIPPED)
-        await self.player.stop()
+    async def skip(self, ctx: Context):
+        if self.player:
+            await ctx.send(pm.SKIPPED)
+            self.player.stop()
 
-    async def loop(self, ctx):
+    async def loop(self, ctx: Context):
         self.is_loop = not self.is_loop
         if self.is_loop:
             await ctx.send(pm.LOOP_ENABLED)
         else:
             await ctx.send(pm.LOOP_DISABLED)
 
-    async def enable_radio(self, ctx):
+    async def enable_radio(self, ctx: Context):
         self.is_radio = not self.is_radio
 
         if not self.is_radio:
@@ -73,13 +76,10 @@ class MusicPlayer:
             return
 
         await self._update_player(ctx)
-
-        if not self.player.is_playing:
-            self._start_playlist_radio()
-
+        self._start_playlist_radio()
         await ctx.send(pm.RADIO_ENABLED)
 
-    async def stop(self, ctx):
+    async def stop(self, ctx: Context):
         self.is_loop = False
         self.is_radio = False
         self.playlist = []
@@ -87,21 +87,25 @@ class MusicPlayer:
             await ctx.send(pm.STOP)
             self.player.stop()
 
-    async def pause(self, ctx):
+    async def pause(self, ctx: Context):
         if self.player:
             await ctx.send(pm.PAUSE)
             self.player.pause()
 
-    async def resume(self, ctx):
-        await ctx.send(pm.RESUME)
-        self.player.resume()
+    async def resume(self, ctx: Context):
+        if self.player:
+            await ctx.send(pm.RESUME)
+            self.player.resume()
 
-    async def disconnect(self, ctx):
+    async def current(self, ctx: Context):
+        await ctx.send("self.player.source")
+
+    async def disconnect(self, ctx: Context):
         await self.stop(ctx)
         if self.player and self.player.is_connected():
             await self.player.disconnect()
 
-    async def process_song_request(self, ctx, song_str):
+    async def process_song_request(self, ctx: Context, song_str: str):
         print(song_str)
         if not await self._is_request_correct(ctx):
             return
@@ -116,23 +120,25 @@ class MusicPlayer:
         else:
             await ctx.send(pm.NO_MATCH)
 
-    async def _update_player(self, ctx):
+    async def _update_player(self, ctx: Context):
+        print("player updated")
         if ctx.guild.voice_client:
             self.player = ctx.guild.voice_client
         else:
             self.player = await ctx.author.voice.channel.connect()
 
-    async def _is_request_correct(self, ctx) -> bool:
+    async def _is_request_correct(self, ctx: Context) -> bool:
         if not ctx.author.voice.channel:
-            await ctx.send("Please connect to a voice channel.")
+            await ctx.send(pm.CONNECT_TO_CHANNEL)
             return False
         if self.player and self.player.is_connected() and ctx.author.voice.channel != self.player.channel:
-            await ctx.send(":x2: You need to be in the same voice channel as HalvaBot to use this command")
+            await ctx.send(pm.WRONG_CHANNEL)
             return False
         return True
 
     def _on_song_stops(self, error):
         if error:
+            logging.error(error)
             print(error)
 
         if self.is_loop:
@@ -142,7 +148,8 @@ class MusicPlayer:
         self._start_playlist_radio()
 
     def _start_playlist_radio(self):
-        if self.player.is_playing:
+        print("start_playlist_radio")
+        if self.player.is_playing():
             return
 
         if len(self.playlist) == 0:
@@ -151,14 +158,19 @@ class MusicPlayer:
                 if song:
                     print(song)
                     self._download_then_play(song['url_suffix'])
+                else:
+                    self._start_playlist_radio()
         else:
             print(self.playlist)
             self._download_then_play(self.playlist.pop(0))
 
     @staticmethod
-    def _find_song(name):
-        song_info = YoutubeSearch(name, max_results=1).to_dict()
-        print("YoutubeSearch(self.manager.radio_song()")
+    def _find_song(name: str):
+        song_info = None
+        try:
+            song_info = YoutubeSearch(name, max_results=1).to_dict()
+        except Exception:
+            logging.error(f"YoutubeSearch({name}, max_results=1)")
 
         if song_info[0]['url_suffix']:
             if is_longer_than_max(song_info[0]['duration']):
@@ -167,7 +179,7 @@ class MusicPlayer:
         else:
             return None
 
-    def _download_then_play(self, name):
+    def _download_then_play(self, name: str):
         while os.path.exists(stubfile):
             try:
                 os.remove(stubfile)
