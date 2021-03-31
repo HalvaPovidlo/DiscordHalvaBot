@@ -126,6 +126,7 @@ async def chess_error(ctx, error):
     _log_error(ctx, error)
 
 
+# Music player commands ->
 @bot.command()
 async def play(ctx, *song_str):
     await music_player.process_song_request(ctx, ' '.join(song_str))
@@ -138,7 +139,7 @@ async def play_error(ctx, error):
 
 @bot.command()
 async def shuffle(ctx):
-    await music_player.shuffle()
+    await music_player.shuffle(ctx)
 
 
 @shuffle.error
@@ -148,7 +149,7 @@ async def shuffle_error(ctx, error):
 
 @bot.command()
 async def skip(ctx):
-    music_player.skip()
+    await music_player.skip(ctx)
 
 
 @skip.error
@@ -158,7 +159,7 @@ async def skip_error(ctx, error):
 
 @bot.command()
 async def fs(ctx):
-    music_player.skip()
+    await music_player.skip(ctx)
 
 
 @fs.error
@@ -168,7 +169,7 @@ async def fs_error(ctx, error):
 
 @bot.command()
 async def loop(ctx):
-    music_player.loop()
+    await music_player.loop(ctx)
 
 
 @loop.error
@@ -188,7 +189,7 @@ async def radio_error(ctx, error):
 
 @bot.command()
 async def stop(ctx):
-    music_player.stop()
+    await music_player.stop(ctx)
 
 
 @stop.error
@@ -198,7 +199,7 @@ async def stop_error(ctx, error):
 
 @bot.command()
 async def pause(ctx):
-    music_player.pause()
+    await music_player.pause(ctx)
 
 
 @pause.error
@@ -208,7 +209,7 @@ async def pause_error(ctx, error):
 
 @bot.command()
 async def resume(ctx):
-    music_player.resume()
+    await music_player.resume(ctx)
 
 
 @resume.error
@@ -218,12 +219,13 @@ async def resume_error(ctx, error):
 
 @bot.command()
 async def disconnect(ctx):
-    await music_player.disconnect()
+    await music_player.disconnect(ctx)
 
 
 @disconnect.error
 async def disconnect_error(ctx, error):
     _log_error(ctx, error)
+# <- Music player commands
 
 
 def main():
