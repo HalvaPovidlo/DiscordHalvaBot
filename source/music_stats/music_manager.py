@@ -55,7 +55,7 @@ class MusicManager:
             return 1
 
     def _update_sheet(self):
-        if localtime().tm_min - self._last_update <= 0:
+        if abs(localtime().tm_min - self._last_update) <= 1:
             return
 
         self._last_update = localtime().tm_min

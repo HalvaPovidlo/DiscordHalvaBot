@@ -10,3 +10,10 @@ SEARCHING = ":youtube: Searching :mag_right:"
 PAUSE = "Paused :pause_button:"
 
 STOP = "Stoped :stop_button:"
+
+LOOP_ENABLED = "Loop enabled"
+LOOP_DISABLED = "Loop disabled"
+
+RESUME = "Resumed"
+
+SHUFFLE = "Playlist shuffled"
