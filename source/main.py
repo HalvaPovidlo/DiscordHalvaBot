@@ -126,6 +126,26 @@ async def chess_error(ctx, error):
     _log_error(ctx, error)
 
 
+@bot.command()
+async def film(ctx):
+    await ctx.send(gm.FILMS_LINK)
+
+
+@film.error
+async def film_error(ctx, error):
+    _log_error(ctx, error)
+
+
+@bot.command()
+async def link(ctx):
+    await ctx.send(gm.ALL_LINKS)
+
+
+@link.error
+async def link_error(ctx, error):
+    _log_error(ctx, error)
+
+
 # Music player commands ->
 @bot.command()
 async def play(ctx, *song_str):
