@@ -1,6 +1,7 @@
 from random import randint
 
 from discord import Client
+from discord import Message
 
 from music_stats.music_manager import MusicManager
 import general_messages as gm
@@ -9,11 +10,11 @@ from secretConfig import discord_settings
 import utilities as utl
 
 
-def is_from_debug_channel(msg) -> bool:
+def is_from_debug_channel(msg: Message) -> bool:
     return str(msg.channel) == 'debug'
 
 
-def is_from_music_channel(msg) -> bool:
+def is_from_music_channel(msg: Message) -> bool:
     return str(msg.channel) == 'music'
 
 
@@ -21,12 +22,12 @@ class MessageHandler:
     """The class handles messages that were not started with the bot prefix."""
 
     def __init__(self, client: Client, manager: MusicManager):
-        self._client = client
-        self._is_debug_mode = discord_settings['debug']
+        self._client: Client = client
+        self._is_debug_mode: bool = discord_settings['debug']
         self._music_bot = None
-        self._manager = manager
+        self._manager: MusicManager = manager
 
-    async def delete_music_message(self, message):
+    async def delete_music_message(self, message: Message):
         if is_from_music_channel(message) or is_from_debug_channel(message):
             return
         if message.author == self._music_bot or \
@@ -34,7 +35,7 @@ class MessageHandler:
                 message.content.startswith("!fs"):
             await message.delete()
 
-    async def process_song(self, message):
+    async def process_song(self, message: Message):
         counter = utl.Status.NO_SONG.value
 
         if message.author == self._music_bot or message.content.startswith('<:youtube:335112740957978625> **Searching'):
@@ -51,12 +52,12 @@ class MessageHandler:
                 await message.channel.send(gm.NEW_SONG[randint(0, len(gm.NEW_SONG) - 1)])
             await self.add_reactions(message, utl.number_as_emojis(counter))
 
-    def skip_message(self, message) -> bool:
+    def skip_message(self, message: Message) -> bool:
         return message.author == self._client.user or \
                self._is_debug_mode != is_from_debug_channel(message) or \
                message.content.startswith(discord_settings['prefix'])
 
-    async def process_message(self, message):
+    async def process_message(self, message: Message):
         if self.skip_message(message):
             return
 
@@ -73,7 +74,7 @@ class MessageHandler:
         await self.delete_music_message(message)
 
     @staticmethod
-    def check_dirty(message) -> str:
+    def check_dirty(message: Message) -> str:
         """
         Checks message on dirty talk.
         :param message:
@@ -86,6 +87,6 @@ class MessageHandler:
         return ""
 
     @staticmethod
-    async def add_reactions(message, emoji_list):
+    async def add_reactions(message: Message, emoji_list):
         for e in emoji_list:
             await message.add_reaction(e)

@@ -1,6 +1,8 @@
 import logging
 import random
 
+from discord import Message
+
 from music_stats import google_sheets_api as gs
 from music_stats.google_sheets_api import Columns
 from utilities import Status
@@ -74,7 +76,7 @@ class MusicManager:
             logging.info("Nothing to update")
             print("Nothing to update")
 
-    def collect_song(self, message):
+    def collect_song(self, message: Message):
         content = message.content
         link = ""
         if content.startswith('**Playing**'):
@@ -120,10 +122,18 @@ class MusicManager:
         return songs_to_play
 
     def radio_song(self):
-        return self._songs_list[random.randint(0, len(self._songs_list))][Columns.NAME.value]
+        index_of_one = 0
+        print(self._songs_list[0])
+        print(self._songs_list[1])
+        while index_of_one < len(self._songs_list):
+            if int(self._songs_list[index_of_one][Columns.COUNTER.value]) == 1:
+                break
+            index_of_one += 1
+
+        return self._songs_list[random.randint(0, index_of_one - 1)][Columns.NAME.value]
 
     # Return message with songs with substr query
-    def find_songs(self, to_find):
+    def find_songs(self, to_find: str):
         if len(to_find) < 3:
             return gm.SHORT_REQUEST
         to_find = to_find.lower()
