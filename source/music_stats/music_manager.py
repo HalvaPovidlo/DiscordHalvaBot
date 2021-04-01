@@ -129,8 +129,6 @@ class MusicManager:
 
     def radio_song(self):
         index_of_one = 0
-        print(self._songs_list[0])
-        print(self._songs_list[1])
         while index_of_one < len(self._songs_list):
             if int(self._songs_list[index_of_one][Columns.COUNTER.value]) == 1:
                 break

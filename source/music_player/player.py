@@ -114,7 +114,10 @@ class MusicPlayer:
         if song:
             self.playlist.append(song['url_suffix'])
             counter = self.manager.collect_song_from_player(song)
-            await ctx.send(f"{pm.START_PLAYING.format(song_name=song['title'])}   {number_to_emojis(counter)}")
+            if self.player.is_playing():
+                await ctx.send(f"{pm.ENQUEUE.format(song_name=song['title'])}  {number_to_emojis(counter)}")
+            else:
+                await ctx.send(f"{pm.START_PLAYING.format(song_name=song['title'])}  {number_to_emojis(counter)}")
 
             self._start_playlist_radio()
         else:
@@ -149,7 +152,6 @@ class MusicPlayer:
         self._start_playlist_radio()
 
     def _start_playlist_radio(self):
-        print("start_playlist_radio")
         if self.player.is_playing():
             return
 
@@ -157,7 +159,6 @@ class MusicPlayer:
             if self.is_radio:
                 song = self._find_song(self.manager.radio_song())
                 if song:
-                    print(song)
                     self._download_then_play(song['url_suffix'])
                 else:
                     self._start_playlist_radio()
@@ -173,8 +174,8 @@ class MusicPlayer:
         except Exception:
             logging.error(f"YoutubeSearch({name}, max_results=1)")
         finally:
-            print(song_info[0]['title'])
-            if song_info[0]['url_suffix']:
+            if song_info:
+                print(song_info[0]['title'])
                 if is_longer_than_max(song_info[0]['duration']):
                     return None
                 return song_info[0]
@@ -188,9 +189,11 @@ class MusicPlayer:
             finally:
                 pass
 
-        with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-            print("youtube_dl.YoutubeDL(ydl_opts) as ydl")
-            to_download = 'https://www.youtube.com/' + name
-            ydl.download([to_download])
-            self.current_song = to_download
-            self.player.play(FFmpegPCMAudio(stubfile), after=self._on_song_stops)
+        try:
+            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                to_download = 'https://www.youtube.com/' + name
+                ydl.download([to_download])
+                self.current_song = to_download
+                self.player.play(FFmpegPCMAudio(stubfile), after=self._on_song_stops)
+        except Exception:
+            logging.error(f"youtube_dl.YoutubeDL {to_download}")

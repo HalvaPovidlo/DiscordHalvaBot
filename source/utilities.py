@@ -47,10 +47,8 @@ def number_as_emojis(number: int):
 
 def number_to_emojis(number: int) -> str:
     digits = number_to_digit_list(number)
-    print(digits)
     result = ""
     for d in digits:
         result += digit_as_emoji(d)
 
-    print(result)
     return result
