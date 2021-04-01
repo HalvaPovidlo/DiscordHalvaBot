@@ -1,4 +1,11 @@
+from datetime import datetime
 from enum import Enum
+import logging
+
+from secretConfig import discord_settings
+
+if not discord_settings['debug']:
+    logging.basicConfig(level=logging.INFO)
 
 
 class Status(Enum):
@@ -52,3 +59,14 @@ def number_to_emojis(number: int) -> str:
         result += digit_as_emoji(d)
 
     return result
+
+
+def logerr(err: str):
+    logging.error(f"{err} {datetime.now()}")
+
+
+def loginfo(err: str):
+    logging.info(f"{err} {datetime.now()}")
+
+def logwarn(err: str):
+    logging.warning(f"{err} {datetime.now()}")

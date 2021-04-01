@@ -9,6 +9,7 @@ from music_stats.music_manager import MusicManager
 from secretConfig import discord_settings
 from message_handler import MessageHandler
 from chess import chess_manager
+import utilities
 
 bot = commands.Bot(command_prefix=discord_settings['prefix'])
 bot.remove_command('help')
@@ -27,7 +28,14 @@ bot.add_listener(on_message, 'on_message')
 def _log_error(ctx, error):
     if isinstance(error, commands.CheckFailure):
         return
-    logging.error("{err} in message: {msg}".format(err=error, msg=ctx.message.content))
+    utilities.logerr("{err} in message: {msg}".format(err=error, msg=ctx.message.content))
+
+
+@bot.event
+async def on_command(ctx: commands.Context):
+    user = ctx.author
+    command = ctx.message.content
+    utilities.loginfo('{} used :{}:'.format(user, command))
 
 
 @bot.check
@@ -260,6 +268,7 @@ async def disconnect_error(ctx: commands.Context, error):
 
 
 def main():
+    utilities.loginfo("started")
     bot.run(discord_settings['token'])
 
 

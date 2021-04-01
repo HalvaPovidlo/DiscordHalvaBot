@@ -8,7 +8,7 @@ from discord.ext.commands import Context
 import youtube_dl
 from youtube_search import YoutubeSearch
 
-from utilities import number_to_emojis
+import utilities as util
 import music_player.player_messages as pm
 from music_stats.music_manager import MusicManager
 
@@ -115,9 +115,9 @@ class MusicPlayer:
             self.playlist.append(song['url_suffix'])
             counter = self.manager.collect_song_from_player(song)
             if self.player.is_playing():
-                await ctx.send(f"{pm.ENQUEUE.format(song_name=song['title'])}  {number_to_emojis(counter)}")
+                await ctx.send(f"{pm.ENQUEUE.format(song_name=song['title'])}  {util.number_to_emojis(counter)}")
             else:
-                await ctx.send(f"{pm.START_PLAYING.format(song_name=song['title'])}  {number_to_emojis(counter)}")
+                await ctx.send(f"{pm.START_PLAYING.format(song_name=song['title'])}  {util.number_to_emojis(counter)}")
 
             self._start_playlist_radio()
         else:
@@ -176,6 +176,7 @@ class MusicPlayer:
         finally:
             if song_info:
                 print(song_info[0]['title'])
+                util.loginfo(f"Found {song_info[0]['title']} : {song_info[0]['duration']}")
                 if is_longer_than_max(song_info[0]['duration']):
                     return None
                 return song_info[0]
@@ -196,4 +197,4 @@ class MusicPlayer:
                 self.current_song = to_download
                 self.player.play(FFmpegPCMAudio(stubfile), after=self._on_song_stops)
         except Exception:
-            logging.error(f"youtube_dl.YoutubeDL {to_download}")
+            util.logerr(f"youtube_dl.YoutubeDL {to_download}")

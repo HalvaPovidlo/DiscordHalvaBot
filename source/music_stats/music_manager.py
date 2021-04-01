@@ -6,6 +6,8 @@ from discord import Message
 from music_stats import google_sheets_api as gs
 from music_stats.google_sheets_api import Columns
 from utilities import Status
+from utilities import loginfo
+from utilities import logerr
 from datetime import date
 from time import localtime
 import general_messages as gm
@@ -17,7 +19,7 @@ MAX_MESSAGE_LENGTH = 2000
 class MusicManager:
     def __init__(self):
         self._songs_list = gs.read_all_data()
-        logging.info("Loaded " + str(len(self._songs_list)) + " songs")
+        loginfo("Loaded " + str(len(self._songs_list)) + " songs")
         print("Loaded " + str(len(self._songs_list)) + " songs")
         self._songs_map = {}  # [name] -> position in songs_list
         self._any_updates = False
@@ -61,7 +63,7 @@ class MusicManager:
             return
 
         self._last_update = localtime().tm_min
-        logging.info("Updating remote...")
+        loginfo("Updating remote...")
         print("Updating remote...")
         if self._any_updates:
             self._songs_list.sort(key=lambda x: int(x[Columns.COUNTER.value]), reverse=True)
@@ -70,10 +72,10 @@ class MusicManager:
                 gs.write_all_data(self._songs_list)
                 self._any_updates = False
             except:
-                logging.error("gs.write_all_data(songs_list)")
+                logerr("gs.write_all_data(songs_list)")
                 print("ERROR acquired when gs.write_all_data(songs_list)")
         else:
-            logging.info("Nothing to update")
+            loginfo("Nothing to update")
             print("Nothing to update")
 
     def collect_song(self, message: Message) -> int:
@@ -101,8 +103,8 @@ class MusicManager:
 
         print('name: ' + name)
         print('link: ' + link)
-        logging.info('name: ' + name)
-        logging.info('link: ' + link)
+        loginfo('name: ' + name)
+        loginfo('link: ' + link)
 
         response = Status.NO_SONG.value
         if name != '':
