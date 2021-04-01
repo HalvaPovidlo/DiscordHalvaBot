@@ -10,6 +10,7 @@ from youtube_search import YoutubeSearch
 
 import utilities as util
 import music_player.player_messages as pm
+from message_handler import is_from_music_channel, is_from_debug_channel
 from music_stats.music_manager import MusicManager
 
 stubfile = "stubname.mp3"
@@ -34,6 +35,11 @@ def is_longer_than_max(song_duration: str) -> bool:
     return False
 
 
+async def send_to_music(ctx: Context, msg: str):
+    if is_from_music_channel(ctx.message) or is_from_debug_channel(ctx.message):
+        await ctx.send(msg)
+
+
 class MusicPlayer:
     def __init__(self, manager: MusicManager):
         self.playlist = []  # list of youtube song url_suffixes
@@ -44,26 +50,26 @@ class MusicPlayer:
         self.current_song: str = ""
 
     async def shuffle(self, ctx: Context):
-        await ctx.send(pm.SHUFFLE)
+        await send_to_music(ctx, pm.SHUFFLE)
         random.shuffle(self.playlist)
 
     async def skip(self, ctx: Context):
         if self.player:
-            await ctx.send(pm.SKIPPED)
+            await send_to_music(ctx, pm.SKIPPED)
             self.player.stop()
 
     async def loop(self, ctx: Context):
         self.is_loop = not self.is_loop
         if self.is_loop:
-            await ctx.send(pm.LOOP_ENABLED)
+            await send_to_music(ctx, pm.LOOP_ENABLED)
         else:
-            await ctx.send(pm.LOOP_DISABLED)
+            await send_to_music(ctx, pm.LOOP_DISABLED)
 
     async def enable_radio(self, ctx: Context):
         self.is_radio = not self.is_radio
 
         if not self.is_radio:
-            await ctx.send(pm.RADIO_DISABLED)
+            await send_to_music(ctx, pm.RADIO_DISABLED)
             return
 
         if not await self._is_request_correct(ctx):
@@ -71,24 +77,24 @@ class MusicPlayer:
 
         await self._update_player(ctx)
         self._start_playlist_radio()
-        await ctx.send(pm.RADIO_ENABLED)
+        await send_to_music(ctx, pm.RADIO_ENABLED)
 
     async def stop(self, ctx: Context):
         self.is_loop = False
         self.is_radio = False
         self.playlist = []
         if self.player:
-            await ctx.send(pm.STOP)
+            await send_to_music(ctx, pm.STOP)
             self.player.stop()
 
     async def pause(self, ctx: Context):
         if self.player:
-            await ctx.send(pm.PAUSE)
+            await send_to_music(ctx, pm.PAUSE)
             self.player.pause()
 
     async def resume(self, ctx: Context):
         if self.player:
-            await ctx.send(pm.RESUME)
+            await send_to_music(ctx, pm.RESUME)
             self.player.resume()
 
     async def current(self, ctx: Context):
@@ -109,19 +115,20 @@ class MusicPlayer:
 
         await self._update_player(ctx)
 
-        await ctx.send(f"{pm.SEARCHING} {song_str}")
+        await send_to_music(ctx, f"{pm.SEARCHING} {song_str}")
         song = self._find_song(song_str)
         if song:
             self.playlist.append(song['url_suffix'])
             counter = self.manager.collect_song_from_player(song)
+            emojis = util.number_to_emojis(counter)
             if self.player.is_playing():
-                await ctx.send(f"{pm.ENQUEUE.format(song_name=song['title'])}  {util.number_to_emojis(counter)}")
+                await send_to_music(ctx, f"{pm.ENQUEUE.format(song_name=song['title'])}  {emojis}")
             else:
-                await ctx.send(f"{pm.START_PLAYING.format(song_name=song['title'])}  {util.number_to_emojis(counter)}")
+                await send_to_music(ctx, f"{pm.START_PLAYING.format(song_name=song['title'])}  {emojis}")
 
             self._start_playlist_radio()
         else:
-            await ctx.send(pm.NO_MATCH)
+            await send_to_music(ctx, pm.NO_MATCH)
 
     async def _update_player(self, ctx: Context):
         print("player updated")

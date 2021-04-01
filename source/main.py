@@ -7,7 +7,7 @@ import general_messages as gm
 from music_player.player import MusicPlayer
 from music_stats.music_manager import MusicManager
 from secretConfig import discord_settings
-from message_handler import MessageHandler
+from message_handler import MessageHandler, is_from_music_channel, is_from_debug_channel
 from chess import chess_manager
 import utilities
 
@@ -34,8 +34,20 @@ def _log_error(ctx, error):
 @bot.event
 async def on_command(ctx: commands.Context):
     user = ctx.author
-    command = ctx.message.content
-    utilities.loginfo('{} used :{}:'.format(user, command))
+    message: Message = ctx.message
+    command = message.content
+    utilities.loginfo('{} used :{}: in {}'.format(user, command, message.channel))
+    if is_from_music_channel(message) or is_from_debug_channel(message):
+        return
+    if message.content.startswith("$play") or \
+            message.content.startswith("$fs") or \
+            message.content.startswith("$skip") or \
+            message.content.startswith("$radio") or \
+            message.content.startswith("$shuffle") or \
+            message.content.startswith("$loop") or \
+            message.content.startswith("$pause") or \
+            message.content.startswith("$resume"):
+        await message.delete()
 
 
 @bot.check
