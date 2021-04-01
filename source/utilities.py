@@ -7,7 +7,7 @@ class Status(Enum):
     SUCCESS = 1
 
 
-def digit_as_emoji(digit):
+def digit_as_emoji(digit: int):
     return {
         1: '1️⃣',
         2: '2️⃣',
@@ -22,7 +22,7 @@ def digit_as_emoji(digit):
     }[digit]
 
 
-def number_as_emojis(number):
+def number_to_digit_list(number: int):
     digits = []
     number = round(int(number))
     if number < 0:
@@ -32,9 +32,25 @@ def number_as_emojis(number):
         digits.append(number % 10)
         number //= 10
 
-    result = []
     digits.reverse()
+    return digits
+
+
+def number_as_emojis(number: int):
+    digits = number_to_digit_list(number)
+    result = []
     for d in digits:
         result.append(digit_as_emoji(d))
 
+    return result
+
+
+def number_to_emojis(number: int) -> str:
+    digits = number_to_digit_list(number)
+    print(digits)
+    result = ""
+    for d in digits:
+        result += digit_as_emoji(d)
+
+    print(result)
     return result

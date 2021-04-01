@@ -8,6 +8,7 @@ from discord.ext.commands import Context
 import youtube_dl
 from youtube_search import YoutubeSearch
 
+from utilities import number_to_emojis
 import music_player.player_messages as pm
 from music_stats.music_manager import MusicManager
 
@@ -112,6 +113,9 @@ class MusicPlayer:
         song = self._find_song(song_str)
         if song:
             self.playlist.append(song['url_suffix'])
+            counter = self.manager.collect_song_from_player(song)
+            await ctx.send(f"{pm.START_PLAYING.format(song_name=song['title'])}   {number_to_emojis(counter)}")
+
             self._start_playlist_radio()
         else:
             await ctx.send(pm.NO_MATCH)

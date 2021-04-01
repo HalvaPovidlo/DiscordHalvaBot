@@ -76,7 +76,7 @@ class MusicManager:
             logging.info("Nothing to update")
             print("Nothing to update")
 
-    def collect_song(self, message: Message):
+    def collect_song(self, message: Message) -> int:
         content = message.content
         link = ""
         if content.startswith('**Playing**'):
@@ -110,6 +110,12 @@ class MusicManager:
             self._any_updates = True
             self._update_sheet()
 
+        return response
+
+    def collect_song_from_player(self, song_info) -> int:
+        response = self._add_song_to_sheet(song_info['title'], 'https://www.youtube.com' + song_info['url_suffix'])
+        self._any_updates = True
+        self._update_sheet()
         return response
 
     # Returns message with songs to play
