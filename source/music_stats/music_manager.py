@@ -6,6 +6,8 @@ from discord import Message
 from music_stats import google_sheets_api as gs
 from music_stats.google_sheets_api import Columns
 from utilities import Status
+from utilities import loginfo
+from utilities import logerr
 from datetime import date
 from time import localtime
 import general_messages as gm
@@ -17,7 +19,7 @@ MAX_MESSAGE_LENGTH = 2000
 class MusicManager:
     def __init__(self):
         self._songs_list = gs.read_all_data()
-        logging.info("Loaded " + str(len(self._songs_list)) + " songs")
+        loginfo("Loaded " + str(len(self._songs_list)) + " songs")
         print("Loaded " + str(len(self._songs_list)) + " songs")
         self._songs_map = {}  # [name] -> position in songs_list
         self._any_updates = False
@@ -61,7 +63,7 @@ class MusicManager:
             return
 
         self._last_update = localtime().tm_min
-        logging.info("Updating remote...")
+        loginfo("Updating remote...")
         print("Updating remote...")
         if self._any_updates:
             self._songs_list.sort(key=lambda x: int(x[Columns.COUNTER.value]), reverse=True)
@@ -70,13 +72,13 @@ class MusicManager:
                 gs.write_all_data(self._songs_list)
                 self._any_updates = False
             except:
-                logging.error("gs.write_all_data(songs_list)")
+                logerr("gs.write_all_data(songs_list)")
                 print("ERROR acquired when gs.write_all_data(songs_list)")
         else:
-            logging.info("Nothing to update")
+            loginfo("Nothing to update")
             print("Nothing to update")
 
-    def collect_song(self, message: Message):
+    def collect_song(self, message: Message) -> int:
         content = message.content
         link = ""
         if content.startswith('**Playing**'):
@@ -101,8 +103,8 @@ class MusicManager:
 
         print('name: ' + name)
         print('link: ' + link)
-        logging.info('name: ' + name)
-        logging.info('link: ' + link)
+        loginfo('name: ' + name)
+        loginfo('link: ' + link)
 
         response = Status.NO_SONG.value
         if name != '':
@@ -110,6 +112,12 @@ class MusicManager:
             self._any_updates = True
             self._update_sheet()
 
+        return response
+
+    def collect_song_from_player(self, song_info) -> int:
+        response = self._add_song_to_sheet(song_info['title'], 'https://www.youtube.com' + song_info['url_suffix'])
+        self._any_updates = True
+        self._update_sheet()
         return response
 
     # Returns message with songs to play
@@ -123,8 +131,6 @@ class MusicManager:
 
     def radio_song(self):
         index_of_one = 0
-        print(self._songs_list[0])
-        print(self._songs_list[1])
         while index_of_one < len(self._songs_list):
             if int(self._songs_list[index_of_one][Columns.COUNTER.value]) == 1:
                 break

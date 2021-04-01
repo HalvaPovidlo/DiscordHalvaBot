@@ -9,6 +9,7 @@ from google.auth.transport.requests import Request
 
 from secretConfig import gsheets_settings
 from secretConfig import discord_settings
+from utilities import loginfo
 
 DEBUG_MODE = discord_settings['debug']
 
@@ -74,6 +75,8 @@ def write_all_data(data):
     }
     result = service.spreadsheets().values().batchUpdate(
         spreadsheetId=SPREADSHEET_ID, body=body).execute()
+
+    loginfo('{0} cells updated.'.format(result.get('totalUpdatedCells')))
     print('{0} cells updated.'.format(result.get('totalUpdatedCells')))
 
 
