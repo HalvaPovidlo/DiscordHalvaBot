@@ -30,6 +30,8 @@ ydl_opts = {
 def is_longer_than_max(song_duration: str) -> bool:
     smh = song_duration.rsplit(":")
     max_minutes = 20
+    if len(smh) >= 3:
+        return True
     if len(smh) > 1:
         return int(smh[-2]) > max_minutes - 1
     return False
