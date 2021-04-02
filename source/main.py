@@ -1,5 +1,3 @@
-import logging
-
 from discord import Message
 from discord.ext import commands
 
