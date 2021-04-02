@@ -3,7 +3,11 @@ import pandas as pd
 
 class MovieManager:
     def __init__(self):
-        self.recommendation_matrix = pd.read_csv('movie/secret_recommendation_matrix.csv', index_col='movie')
+        try:
+            self.recommendation_matrix = pd.read_csv('movie/secret_recommendation_matrix.csv', index_col='movie')
+        except OSError:
+            self.NO_MATRIX = True
+
         self.user_dict = {'Андрей': 0,
                           'Влад': 1,
                           'Артем': 2,
@@ -13,6 +17,8 @@ class MovieManager:
                           'Санек': 6}
 
     def recommend(self, name: str):
+        if self.NO_MATRIX is True:
+            return 'Sorry, this command does not work yet'
         if name not in self.user_dict.keys():
             return 'ТЫ ДАЖЕ НЕ ГРАЖДАНИН! Введите имя гражданина SMOrc'
         user_id = str(self.user_dict[name])
