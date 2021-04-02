@@ -1,4 +1,11 @@
+from datetime import datetime
 from enum import Enum
+import logging
+
+from secretConfig import discord_settings
+
+if not discord_settings['debug']:
+    logging.basicConfig(level=logging.INFO)
 
 
 class Status(Enum):
@@ -7,7 +14,7 @@ class Status(Enum):
     SUCCESS = 1
 
 
-def digit_as_emoji(digit):
+def digit_as_emoji(digit: int):
     return {
         1: '1️⃣',
         2: '2️⃣',
@@ -22,7 +29,7 @@ def digit_as_emoji(digit):
     }[digit]
 
 
-def number_as_emojis(number):
+def number_to_digit_list(number: int):
     digits = []
     number = round(int(number))
     if number < 0:
@@ -32,9 +39,34 @@ def number_as_emojis(number):
         digits.append(number % 10)
         number //= 10
 
-    result = []
     digits.reverse()
+    return digits
+
+
+def number_as_emojis(number: int):
+    digits = number_to_digit_list(number)
+    result = []
     for d in digits:
         result.append(digit_as_emoji(d))
 
     return result
+
+
+def number_to_emojis(number: int) -> str:
+    digits = number_to_digit_list(number)
+    result = ""
+    for d in digits:
+        result += digit_as_emoji(d)
+
+    return result
+
+
+def logerr(err: str):
+    logging.error(f"{err} {datetime.now()}")
+
+
+def loginfo(err: str):
+    logging.info(f"{err} {datetime.now()}")
+
+def logwarn(err: str):
+    logging.warning(f"{err} {datetime.now()}")
