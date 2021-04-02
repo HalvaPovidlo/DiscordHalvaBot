@@ -8,6 +8,7 @@ from secretConfig import discord_settings
 from message_handler import MessageHandler, is_from_music_channel, is_from_debug_channel
 from chess import chess_manager
 import utilities
+from movie.movie_manager import MovieManager
 
 bot = commands.Bot(command_prefix=discord_settings['prefix'])
 bot.remove_command('help')
@@ -15,6 +16,8 @@ bot.remove_command('help')
 music_manager = MusicManager()
 music_player = MusicPlayer(music_manager)
 handler = MessageHandler(bot, music_manager)
+
+movie_manager = MovieManager()
 
 
 async def on_message(message: Message):
@@ -275,6 +278,19 @@ async def disconnect(ctx: commands.Context):
 async def disconnect_error(ctx: commands.Context, error):
     _log_error(ctx, error)
 # <- Music player commands
+
+
+@bot.command()
+async def recommend(ctx: commands.Context, name: str):
+    await ctx.send(movie_manager.recommend(name))
+
+
+@recommend.error
+async def recommend_error(ctx: commands.Context, error):
+    if isinstance(error, commands.BadArgument) or isinstance(error, commands.MissingRequiredArgument):
+        await ctx.send('Аргументом должна быть строка DansGame')
+        return
+    _log_error(ctx, error)
 
 
 def main():
