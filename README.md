@@ -23,6 +23,7 @@ discord_settings = {
 
 gsheets_settings = {
     'id': '***',
+    'film': '***'
 }
 ```
 Replace `token` with token from Discord Developer Portal.
