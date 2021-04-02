@@ -1,12 +1,16 @@
 import pandas as pd
 
+from source.utilities import logerr
+
 
 class MovieManager:
     def __init__(self):
+        self.NO_MATRIX = False
         try:
             self.recommendation_matrix = pd.read_csv('movie/secret_recommendation_matrix.csv', index_col='movie')
         except OSError:
             self.NO_MATRIX = True
+            logerr('No movie/secret_recommendation_matrix.csv')
 
         self.user_dict = {'Андрей': 0,
                           'Влад': 1,
