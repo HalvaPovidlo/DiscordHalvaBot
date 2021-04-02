@@ -33,7 +33,7 @@ YOUTUBE_1 = "https://www.youtube.com/channel/UC56_SqbimIM-j87hA1HF90A"
 
 YOUTUBE_2 = "https://www.youtube.com/channel/UCk2lvpg_bU6atRIKSUfWKUw"
 
-FILMS_LINK = "https://docs.google.com/spreadsheets/d/1yRudNo3YMm-FTTJRNJHcPCKBpUdC1URSZsjPNvfhff4/edit#gid=1519951860"
+FILMS_LINK = f"https://docs.google.com/spreadsheets/d/{secretConfig.gsheets_settings['film']}/edit#gid=1519951860"
 
 
 ALL_LINKS = "`Песни:` <" + SHEET_LINK + ">\n" \
