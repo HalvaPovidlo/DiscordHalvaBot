@@ -41,7 +41,7 @@ Credentials -> OAuth client -> DOWNLOAD JSON
 
 Move the json file to `source/music_manager/` and rename it to `credentials.json`.
 
-Run `client_main.py`.
+Run `main.py`.
 
 ## Documentation
 
