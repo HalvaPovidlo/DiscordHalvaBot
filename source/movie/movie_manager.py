@@ -1,6 +1,6 @@
 import pandas as pd
 
-from source.utilities import logerr
+from utilities import logerr
 
 
 class MovieManager:
