@@ -1,3 +1,4 @@
+import discord.abc
 from discord import Message
 from discord.ext import commands
 
@@ -10,7 +11,7 @@ from chess import chess_manager
 import utilities
 from movie.movie_manager import MovieManager
 
-bot = commands.Bot(command_prefix=discord_settings['prefix'])
+bot: discord.ext.commands.Bot = commands.Bot(command_prefix=discord_settings['prefix'])
 bot.remove_command('help')
 
 music_manager = MusicManager()
@@ -290,6 +291,22 @@ async def recommend_error(ctx: commands.Context, error):
     if isinstance(error, commands.BadArgument) or isinstance(error, commands.MissingRequiredArgument):
         await ctx.send('Аргументом должна быть строка DansGame')
         return
+    _log_error(ctx, error)
+
+
+@bot.command()
+async def clearchannel(ctx: commands.Context):
+    message: Message = ctx.message
+    channel: Message = message.channel
+    messages = await channel.history(limit=200).flatten()
+    for m in messages:
+        m: Message = m
+        if m.author.bot and m.author != bot.user:
+            await m.delete()
+
+
+@disconnect.error
+async def disconnect_error(ctx: commands.Context, error):
     _log_error(ctx, error)
 
 
