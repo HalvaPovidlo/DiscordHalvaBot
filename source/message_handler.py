@@ -38,7 +38,8 @@ class MessageHandler:
     async def process_song(self, message: Message):
         counter = utl.Status.NO_SONG.value
 
-        if message.author == self._music_bot or message.content.startswith('<:youtube:335112740957978625> **Searching'):
+        if message.author == self._music_bot or \
+                (message.content.find('**Searching**') != -1 and message.content.find(':youtube:') != -1):
             self._music_bot = message.author
             counter = self._manager.collect_song(message)
 
