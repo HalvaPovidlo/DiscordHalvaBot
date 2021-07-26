@@ -301,7 +301,7 @@ async def clearchannel(ctx: commands.Context):
     messages = await channel.history(limit=200).flatten()
     for m in messages:
         m: Message = m
-        if m.author.bot and m.author != bot.user:
+        if (m.author.bot or m.content.startswith("!")) and m.author != bot.user:
             await m.delete()
 
 
