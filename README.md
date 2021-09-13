@@ -1,4 +1,6 @@
 # DiscordHalvaBot
+[![Deploy to server](https://github.com/HalvaPovidlo/DiscordHalvaBot/actions/workflows/deployment.yml/badge.svg)](https://github.com/HalvaPovidlo/DiscordHalvaBot/actions/workflows/deployment.yml) [![Python application](https://github.com/HalvaPovidlo/DiscordHalvaBot/actions/workflows/python-app.yml/badge.svg)](https://github.com/HalvaPovidlo/DiscordHalvaBot/actions/workflows/python-app.yml)
+
 
 ## Join all our teams
 
