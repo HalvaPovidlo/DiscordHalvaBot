@@ -4,12 +4,12 @@ import os
 import discord
 from youtube_search import YoutubeSearch
 
-from source.music_player.Searcher.searcher import Searcher
+from music_player.Searcher.searcher import Searcher
 import youtube_dl
 
 
 # Suppress noise about console usage from errors
-from source.utilities import logerr, loginfo
+from utilities import logerr, loginfo
 
 youtube_dl.utils.bug_reports_message = lambda: ''
 
