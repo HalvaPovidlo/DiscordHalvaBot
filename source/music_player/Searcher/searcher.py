@@ -28,3 +28,7 @@ class Searcher(discord.PCMVolumeTransformer):
             os.remove(self.filename)
         else:
             print("The file does not exist")
+
+    def __del__(self):
+        self.delete()
+        super().__del__()

@@ -3,7 +3,6 @@ from discord import Message
 from discord.ext import commands
 
 import general_messages as gm
-from music_player.player import MusicPlayer
 from music_stats.music_manager import MusicManager
 from secretConfig import discord_settings
 from message_handler import MessageHandler, is_from_music_channel, is_from_debug_channel
@@ -16,7 +15,6 @@ bot: discord.ext.commands.Bot = commands.Bot(command_prefix=discord_settings['pr
 bot.remove_command('help')
 
 music_manager = MusicManager()
-music_player = MusicPlayer(music_manager)
 handler = MessageHandler(bot, music_manager)
 
 movie_manager = MovieManager()
@@ -168,118 +166,6 @@ async def link(ctx: commands.Context):
 @link.error
 async def link_error(ctx: commands.Context, error):
     _log_error(ctx, error)
-
-
-# Music player commands ->
-# @bot.command()
-# async def play(ctx: commands.Context, *song_str):
-#     await music_player.process_song_request(ctx, ' '.join(song_str))
-#
-#
-# @play.error
-# async def play_error(ctx: commands.Context, error):
-#     _log_error(ctx, error)
-#
-#
-# @bot.command()
-# async def shuffle(ctx: commands.Context):
-#     await music_player.shuffle(ctx)
-#
-#
-# @shuffle.error
-# async def shuffle_error(ctx: commands.Context, error):
-#     _log_error(ctx, error)
-#
-#
-# @bot.command()
-# async def skip(ctx: commands.Context):
-#     await music_player.skip(ctx)
-#
-#
-# @skip.error
-# async def skip_error(ctx: commands.Context, error):
-#     _log_error(ctx, error)
-#
-#
-# @bot.command()
-# async def fs(ctx: commands.Context):
-#     await music_player.skip(ctx)
-#
-#
-# @fs.error
-# async def fs_error(ctx: commands.Context, error):
-#     _log_error(ctx, error)
-#
-#
-# @bot.command()
-# async def loop(ctx: commands.Context):
-#     await music_player.loop(ctx)
-#
-#
-# @loop.error
-# async def loop_error(ctx: commands.Context, error):
-#     _log_error(ctx, error)
-#
-#
-# @bot.command()
-# async def radio(ctx: commands.Context):
-#     await music_player.enable_radio(ctx)
-#
-#
-# @radio.error
-# async def radio_error(ctx: commands.Context, error):
-#     _log_error(ctx, error)
-#
-#
-# @bot.command()
-# async def stop(ctx: commands.Context):
-#     await music_player.stop(ctx)
-#
-#
-# @stop.error
-# async def stop_error(ctx: commands.Context, error):
-#     _log_error(ctx, error)
-#
-#
-# @bot.command()
-# async def pause(ctx: commands.Context):
-#     await music_player.pause(ctx)
-#
-#
-# @pause.error
-# async def pause_error(ctx: commands.Context, error):
-#     _log_error(ctx, error)
-#
-#
-# @bot.command()
-# async def resume(ctx: commands.Context):
-#     await music_player.resume(ctx)
-#
-#
-# @resume.error
-# async def resume_error(ctx: commands.Context, error):
-#     _log_error(ctx, error)
-#
-#
-# @bot.command()
-# async def current(ctx: commands.Context):
-#     await music_player.current(ctx)
-#
-#
-# @current.error
-# async def current_error(ctx: commands.Context, error):
-#     _log_error(ctx, error)
-#
-#
-# @bot.command()
-# async def disconnect(ctx: commands.Context):
-#     await music_player.disconnect(ctx)
-#
-#
-# @disconnect.error
-# async def disconnect_error(ctx: commands.Context, error):
-#     _log_error(ctx, error)
-# <- Music player commands
 
 
 @bot.command()

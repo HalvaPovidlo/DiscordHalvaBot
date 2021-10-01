@@ -6,10 +6,13 @@ from discord import VoiceClient
 import queue
 from discord.ext import commands
 
+from source.message_handler import is_from_music_channel, is_from_debug_channel
 from source.music_player.Searcher.YoutubeDL import YTDLSource
 from source.music_player.Searcher.searcher import Searcher
 from source.music_stats.music_manager import MusicManager
-from source.utilities import logerr
+from source.utilities import logerr, number_to_emojis
+
+import player_messages as pm
 
 
 class SongQuery:
@@ -32,15 +35,16 @@ class Music(commands.Cog):
 
     @commands.command()
     async def play(self, ctx, *, query):
+        """Playing song from youtube"""
+        await ctx.send(pm.SEARCHING)
         async with ctx.typing():
             song = self.ytdl.find(query)
             if song:
+                await self.collect_data(song, ctx)
                 self.playlist.put(SongQuery(song["url_suffix"], self.ytdl))
                 await self.run_playlist()
             else:
-                return
-
-        await ctx.send('Now playing: {}'.format(song["title"]))
+                await ctx.send(pm.NO_MATCH)
 
     async def load_with(self, searcher: Searcher, url) -> Searcher:
         try:
@@ -85,6 +89,14 @@ class Music(commands.Cog):
         else:
             asyncio.ensure_future(self.run_playlist(), loop=self.bot.loop)
 
+    async def collect_data(self, song, ctx):
+        counter = self.manager.collect_song_from_player(song)
+        emojis = number_to_emojis(counter)
+        if self.is_playing:
+            await send_to_music(ctx, f"{pm.ENQUEUE.format(song_name=song['title'])}  {emojis}")
+        else:
+            await send_to_music(ctx, f"{pm.START_PLAYING.format(song_name=song['title'])}  {emojis}")
+
     @commands.command()
     async def radio(self, ctx):
         self.is_radio = not self.is_radio
@@ -101,8 +113,17 @@ class Music(commands.Cog):
     #     await ctx.send('Now playing: {}'.format(player.title))
 
     @commands.command()
+    async def loop(self, ctx):
+        self.is_loop = not self.is_loop
+        if self.is_loop:
+            await send_to_music(ctx, pm.LOOP_ENABLED)
+        else:
+            await send_to_music(ctx, pm.LOOP_DISABLED)
+
+    @commands.command()
     async def skip(self, ctx):
         self.voiceClient.stop()
+        await send_to_music(ctx, pm.SKIPPED)
 
     @commands.command()
     async def stop(self, ctx=None):
@@ -126,3 +147,15 @@ class Music(commands.Cog):
             else:
                 await ctx.send("You are not connected to a voice channel.")
                 raise commands.CommandError("Author not connected to a voice channel.")
+
+    @loop.before_invoke
+    @skip.before_invoke
+    async def is_bot_available(self, ctx):
+        if self.voiceClient is None or not self.voiceClient.is_playing():
+            await ctx.send("You are not connected to a voice channel.")
+            raise commands.CommandError("Bot not connected or not playing anything.")
+
+
+async def send_to_music(ctx, msg: str):
+    if is_from_music_channel(ctx.message) or is_from_debug_channel(ctx.message):
+        await ctx.send(msg)
