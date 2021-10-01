@@ -34,6 +34,10 @@ Applications -> HalvaBot -> Bot -> Click to reveal token
 
 **Don't pass this token on to anyone!!!**
 
+## Download ffmpeg
+### On Windows:
+Download `ffmpeg.exe` from somewhere than move it to `source/`
+
 ## Enable Google Sheets
 
 In `secretConfig.py` replace `gsheets_settings.id` with the id of our table.

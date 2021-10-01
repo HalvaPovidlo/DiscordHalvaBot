@@ -68,5 +68,6 @@ def logerr(err: str):
 def loginfo(err: str):
     logging.info(f"{err} {datetime.now()}")
 
+
 def logwarn(err: str):
     logging.warning(f"{err} {datetime.now()}")

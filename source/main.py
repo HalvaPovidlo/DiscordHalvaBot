@@ -10,6 +10,7 @@ from message_handler import MessageHandler, is_from_music_channel, is_from_debug
 from chess import chess_manager
 import utilities
 from movie.movie_manager import MovieManager
+from source.music_player.music import Music
 
 bot: discord.ext.commands.Bot = commands.Bot(command_prefix=discord_settings['prefix'])
 bot.remove_command('help')
@@ -170,114 +171,114 @@ async def link_error(ctx: commands.Context, error):
 
 
 # Music player commands ->
-@bot.command()
-async def play(ctx: commands.Context, *song_str):
-    await music_player.process_song_request(ctx, ' '.join(song_str))
-
-
-@play.error
-async def play_error(ctx: commands.Context, error):
-    _log_error(ctx, error)
-
-
-@bot.command()
-async def shuffle(ctx: commands.Context):
-    await music_player.shuffle(ctx)
-
-
-@shuffle.error
-async def shuffle_error(ctx: commands.Context, error):
-    _log_error(ctx, error)
-
-
-@bot.command()
-async def skip(ctx: commands.Context):
-    await music_player.skip(ctx)
-
-
-@skip.error
-async def skip_error(ctx: commands.Context, error):
-    _log_error(ctx, error)
-
-
-@bot.command()
-async def fs(ctx: commands.Context):
-    await music_player.skip(ctx)
-
-
-@fs.error
-async def fs_error(ctx: commands.Context, error):
-    _log_error(ctx, error)
-
-
-@bot.command()
-async def loop(ctx: commands.Context):
-    await music_player.loop(ctx)
-
-
-@loop.error
-async def loop_error(ctx: commands.Context, error):
-    _log_error(ctx, error)
-
-
-@bot.command()
-async def radio(ctx: commands.Context):
-    await music_player.enable_radio(ctx)
-
-
-@radio.error
-async def radio_error(ctx: commands.Context, error):
-    _log_error(ctx, error)
-
-
-@bot.command()
-async def stop(ctx: commands.Context):
-    await music_player.stop(ctx)
-
-
-@stop.error
-async def stop_error(ctx: commands.Context, error):
-    _log_error(ctx, error)
-
-
-@bot.command()
-async def pause(ctx: commands.Context):
-    await music_player.pause(ctx)
-
-
-@pause.error
-async def pause_error(ctx: commands.Context, error):
-    _log_error(ctx, error)
-
-
-@bot.command()
-async def resume(ctx: commands.Context):
-    await music_player.resume(ctx)
-
-
-@resume.error
-async def resume_error(ctx: commands.Context, error):
-    _log_error(ctx, error)
-
-
-@bot.command()
-async def current(ctx: commands.Context):
-    await music_player.current(ctx)
-
-
-@current.error
-async def current_error(ctx: commands.Context, error):
-    _log_error(ctx, error)
-
-
-@bot.command()
-async def disconnect(ctx: commands.Context):
-    await music_player.disconnect(ctx)
-
-
-@disconnect.error
-async def disconnect_error(ctx: commands.Context, error):
-    _log_error(ctx, error)
+# @bot.command()
+# async def play(ctx: commands.Context, *song_str):
+#     await music_player.process_song_request(ctx, ' '.join(song_str))
+#
+#
+# @play.error
+# async def play_error(ctx: commands.Context, error):
+#     _log_error(ctx, error)
+#
+#
+# @bot.command()
+# async def shuffle(ctx: commands.Context):
+#     await music_player.shuffle(ctx)
+#
+#
+# @shuffle.error
+# async def shuffle_error(ctx: commands.Context, error):
+#     _log_error(ctx, error)
+#
+#
+# @bot.command()
+# async def skip(ctx: commands.Context):
+#     await music_player.skip(ctx)
+#
+#
+# @skip.error
+# async def skip_error(ctx: commands.Context, error):
+#     _log_error(ctx, error)
+#
+#
+# @bot.command()
+# async def fs(ctx: commands.Context):
+#     await music_player.skip(ctx)
+#
+#
+# @fs.error
+# async def fs_error(ctx: commands.Context, error):
+#     _log_error(ctx, error)
+#
+#
+# @bot.command()
+# async def loop(ctx: commands.Context):
+#     await music_player.loop(ctx)
+#
+#
+# @loop.error
+# async def loop_error(ctx: commands.Context, error):
+#     _log_error(ctx, error)
+#
+#
+# @bot.command()
+# async def radio(ctx: commands.Context):
+#     await music_player.enable_radio(ctx)
+#
+#
+# @radio.error
+# async def radio_error(ctx: commands.Context, error):
+#     _log_error(ctx, error)
+#
+#
+# @bot.command()
+# async def stop(ctx: commands.Context):
+#     await music_player.stop(ctx)
+#
+#
+# @stop.error
+# async def stop_error(ctx: commands.Context, error):
+#     _log_error(ctx, error)
+#
+#
+# @bot.command()
+# async def pause(ctx: commands.Context):
+#     await music_player.pause(ctx)
+#
+#
+# @pause.error
+# async def pause_error(ctx: commands.Context, error):
+#     _log_error(ctx, error)
+#
+#
+# @bot.command()
+# async def resume(ctx: commands.Context):
+#     await music_player.resume(ctx)
+#
+#
+# @resume.error
+# async def resume_error(ctx: commands.Context, error):
+#     _log_error(ctx, error)
+#
+#
+# @bot.command()
+# async def current(ctx: commands.Context):
+#     await music_player.current(ctx)
+#
+#
+# @current.error
+# async def current_error(ctx: commands.Context, error):
+#     _log_error(ctx, error)
+#
+#
+# @bot.command()
+# async def disconnect(ctx: commands.Context):
+#     await music_player.disconnect(ctx)
+#
+#
+# @disconnect.error
+# async def disconnect_error(ctx: commands.Context, error):
+#     _log_error(ctx, error)
 # <- Music player commands
 
 
@@ -305,13 +306,9 @@ async def clearchannel(ctx: commands.Context):
             await m.delete()
 
 
-@disconnect.error
-async def disconnect_error(ctx: commands.Context, error):
-    _log_error(ctx, error)
-
-
 def main():
     utilities.loginfo("started")
+    bot.add_cog(Music(bot, music_manager))
     bot.run(discord_settings['token'])
 
 
