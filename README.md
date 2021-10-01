@@ -27,12 +27,18 @@ gsheets_settings = {
     'id': '***',
     'film': '***'
 }
+
+CHESS_API_TOKEN = '***'
 ```
 Replace `token` with token from Discord Developer Portal.
 
 Applications -> HalvaBot -> Bot -> Click to reveal token
 
 **Don't pass this token on to anyone!!!**
+
+## Download ffmpeg
+### On Windows:
+Download `ffmpeg.exe` from somewhere than move it to `source/`
 
 ## Enable Google Sheets
 

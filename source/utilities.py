@@ -2,6 +2,8 @@ from datetime import datetime
 from enum import Enum
 import logging
 
+from discord.ext import commands
+
 from secretConfig import discord_settings
 
 if not discord_settings['debug']:
@@ -68,5 +70,12 @@ def logerr(err: str):
 def loginfo(err: str):
     logging.info(f"{err} {datetime.now()}")
 
+
 def logwarn(err: str):
     logging.warning(f"{err} {datetime.now()}")
+
+
+def log_error_to_channel(ctx, error):
+    if isinstance(error, commands.CheckFailure):
+        return
+    logerr("{err} in message: {msg}".format(err=error, msg=ctx.message.content))
