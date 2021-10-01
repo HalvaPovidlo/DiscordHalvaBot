@@ -1,9 +1,10 @@
 import pandas as pd
+from discord.ext import commands
 
-from utilities import logerr
+from utilities import log_error_to_channel, logerr
 
 
-class MovieManager:
+class MovieManager(commands.Cog):
     def __init__(self):
         self.NO_MATRIX = False
         try:
@@ -31,3 +32,14 @@ class MovieManager:
 
     def get_today_films(self):
         pass
+
+    @commands.command()
+    async def recommend(self, ctx: commands.Context, name: str):
+        await ctx.send(self.recommend(name))
+
+    @recommend.error
+    async def recommend_error(self, ctx: commands.Context, error):
+        if isinstance(error, commands.BadArgument) or isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send('Аргументом должна быть строка DansGame')
+            return
+        log_error_to_channel(ctx, error)

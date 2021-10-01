@@ -6,13 +6,12 @@ from discord import VoiceClient
 import queue
 from discord.ext import commands
 
-from source.message_handler import is_from_music_channel, is_from_debug_channel
-from source.music_player.Searcher.YoutubeDL import YTDLSource
-from source.music_player.Searcher.searcher import Searcher
-from source.music_stats.music_manager import MusicManager
-from source.utilities import logerr, number_to_emojis
-
-import player_messages as pm
+from message_handler import is_from_music_channel, is_from_debug_channel
+from music_player import player_messages as pm
+from music_player.Searcher.YoutubeDL import YTDLSource
+from music_player.Searcher.searcher import Searcher
+from music_stats.music_database import MusicDatabase
+from utilities import logerr, number_to_emojis
 
 
 class SongQuery:
@@ -22,13 +21,13 @@ class SongQuery:
 
 
 class Music(commands.Cog):
-    def __init__(self, bot: discord.ext.commands.Bot, manager: MusicManager):
+    def __init__(self, bot: discord.ext.commands.Bot, manager: MusicDatabase):
         self.bot: discord.ext.commands.Bot = bot
         self.voiceClient: VoiceClient = None
         self.is_loop: bool = False
         self.is_radio: bool = False
         self.current_song: Searcher = None
-        self.manager: MusicManager = manager
+        self.manager: MusicDatabase = manager
         self.ytdl: Searcher = YTDLSource(source=None, data={}, filename="")
         self.playlist = queue.Queue()  # of SongQueries
         self.is_playing = False  # Atomic
@@ -38,10 +37,10 @@ class Music(commands.Cog):
         """Playing song from youtube"""
         await ctx.send(pm.SEARCHING)
         async with ctx.typing():
-            song = self.ytdl.find(query)
-            if song:
-                await self.collect_data(song, ctx)
-                self.playlist.put(SongQuery(song["url_suffix"], self.ytdl))
+            song_info = self.ytdl.find(query)
+            if song_info:
+                await self.collect_data(song_info, ctx)
+                self.playlist.put(SongQuery(song_info["url_suffix"], self.ytdl))
                 await self.run_playlist()
             else:
                 await ctx.send(pm.NO_MATCH)
@@ -62,12 +61,10 @@ class Music(commands.Cog):
             if self.is_loop:
                 self.voiceClient.play(self.current_song, after=self._after_start_playlist)
                 return
-            else:
-                self.current_song.delete()
 
         if self.playlist.empty():
             if self.is_radio:
-                url = self.ytdl.find(self.manager.radio_song())["url_suffix"]
+                url = self.ytdl.find(self.manager.get_radio_song())["url_suffix"]
                 song = await self.load_with(self.ytdl, url)
             else:
                 await self.stop()
@@ -89,18 +86,22 @@ class Music(commands.Cog):
         else:
             asyncio.ensure_future(self.run_playlist(), loop=self.bot.loop)
 
-    async def collect_data(self, song, ctx):
-        counter = self.manager.collect_song_from_player(song)
+    async def collect_data(self, song_info, ctx):
+        counter = self.manager.collect_song(song_info)
         emojis = number_to_emojis(counter)
         if self.is_playing:
-            await send_to_music(ctx, f"{pm.ENQUEUE.format(song_name=song['title'])}  {emojis}")
+            await send_to_music(ctx, f"{pm.ENQUEUE.format(song_name=song_info['title'])}  {emojis}")
         else:
-            await send_to_music(ctx, f"{pm.START_PLAYING.format(song_name=song['title'])}  {emojis}")
+            await send_to_music(ctx, f"{pm.START_PLAYING.format(song_name=song_info['title'])}  {emojis}")
 
     @commands.command()
     async def radio(self, ctx):
         self.is_radio = not self.is_radio
         await self.run_playlist()
+        if self.is_radio:
+            await send_to_music(ctx, pm.RADIO_ENABLED)
+        else:
+            await send_to_music(ctx, pm.RADIO_DISABLED)
 
     # @commands.command()
     # async def stream(self, ctx, *, url):

@@ -1,7 +1,6 @@
-import logging
 import random
 
-from discord import Message
+from discord.ext import commands
 
 from music_stats import google_sheets_api as gs
 from music_stats.google_sheets_api import Columns
@@ -12,11 +11,17 @@ from datetime import date
 from time import localtime
 import general_messages as gm
 
+from utilities import log_error_to_channel
+
+import secretConfig
+
+prefix = secretConfig.discord_settings["prefix"]
+
 MAX_SONGS_FROM_RANDOM = 10
 MAX_MESSAGE_LENGTH = 2000
 
 
-class MusicManager:
+class MusicDatabase(commands.Cog):
     def __init__(self):
         self._songs_list = gs.read_all_data()
         loginfo("Loaded " + str(len(self._songs_list)) + " songs")
@@ -78,43 +83,7 @@ class MusicManager:
             loginfo("Nothing to update")
             print("Nothing to update")
 
-    def collect_song(self, message: Message) -> int:
-        content = message.content
-        link = ""
-        if content.startswith('**Playing**'):
-            # **Playing** 🎶 `Some song name` - Now!
-            name = content[content.find('`') + 1:content.rfind('`')]
-        elif len(message.embeds) == 1:
-            description = message.embeds[0].description
-
-            linkStartIndex = description.find('https://www.youtube.com')
-            if linkStartIndex == -1:
-                return Status.NO_SONG.value
-
-            # [song name](https://....
-            nameEndIndex = linkStartIndex - 2
-            if description[nameEndIndex] != ']':
-                return Status.NO_SONG.value
-
-            name = description[description.find('[') + 1:nameEndIndex]
-            link = description[linkStartIndex:description.rfind(')')]
-        else:
-            return Status.NO_SONG.value
-
-        print('name: ' + name)
-        print('link: ' + link)
-        loginfo('name: ' + name)
-        loginfo('link: ' + link)
-
-        response = Status.NO_SONG.value
-        if name != '':
-            response = self._add_song_to_sheet(name, link)
-            self._any_updates = True
-            self._update_sheet()
-
-        return response
-
-    def collect_song_from_player(self, song_info) -> int:
+    def collect_song(self, song_info) -> int:
         response = self._add_song_to_sheet(song_info['title'], 'https://www.youtube.com' + song_info['url_suffix'])
         self._any_updates = True
         self._update_sheet()
@@ -125,11 +94,11 @@ class MusicManager:
         number %= MAX_SONGS_FROM_RANDOM
         songs_to_play = ""
         for i in range(number):
-            songs_to_play += "`!play " + \
+            songs_to_play += "`" + prefix + "play " + \
                              self._songs_list[random.randint(0, len(self._songs_list))][Columns.NAME.value] + "`\n"
         return songs_to_play
 
-    def radio_song(self):
+    def get_radio_song(self):
         index_of_one = 0
         while index_of_one < len(self._songs_list):
             if int(self._songs_list[index_of_one][Columns.COUNTER.value]) == 1:
@@ -148,6 +117,28 @@ class MusicManager:
         for i in range(len(self._songs_list)):
             if len(result_songs) + len(str(self._songs_list[i][Columns.NAME.value])) + 10 < MAX_MESSAGE_LENGTH:
                 if str(self._songs_list[i][Columns.NAME.value]).lower().find(to_find) != -1:
-                    result_songs += "`!play " + self._songs_list[i][Columns.NAME.value] + "`\n"
+                    result_songs += "`" + prefix + "play " + self._songs_list[i][Columns.NAME.value] + "`\n"
 
         return result_songs
+
+    @commands.command()
+    async def random(self, ctx: commands.Context, songs_number: int = 1):
+        await ctx.send(self.random_songs_to_play(songs_number))
+
+    @random.error
+    async def random_error(self, ctx: commands.Context, error):
+        if isinstance(error, commands.BadArgument):
+            await ctx.send('Аргументом должно быть число DansGame')
+            return
+        log_error_to_channel(ctx, error)
+
+    @commands.command()
+    async def search(self, ctx: commands.Context, to_find: str):
+        await ctx.send(self.find_songs(to_find))
+
+    @search.error
+    async def search_error(self, ctx: commands.Context, error):
+        if isinstance(error, commands.BadArgument) or isinstance(error, commands.MissingRequiredArgument):
+            await ctx.send('Аргументом должна быть строка DansGame')
+            return
+        log_error_to_channel(ctx, error)
