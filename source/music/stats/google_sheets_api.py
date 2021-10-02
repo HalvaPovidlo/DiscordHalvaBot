@@ -5,6 +5,8 @@ from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
 from google.auth.transport.requests import Request
 
+from music.stats.database import Database
+from music.stats.song import Song
 from secretConfig import gsheets_settings
 from secretConfig import discord_settings
 from utilities import loginfo
@@ -25,6 +27,51 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 # The ID and range of a sample spreadsheet.
 SPREADSHEET_ID = gsheets_settings['id']
 ALL_DATA_RANGE = 'A2:D9000'
+
+
+class GoogleSheets(Database):
+    def __init__(self):
+        self.service = get_service()
+
+    def read_data(self):
+        data = self.service.spreadsheets().values().get(spreadsheetId=SPREADSHEET_ID, range=ALL_DATA_RANGE).execute()
+        data = data.get('values', [])
+        result = {}
+        for i in data:
+            result[i[Columns.NAME.value]] = Song(i[Columns.NAME.value], i[Columns.LINK.value],
+                                                 i[Columns.COUNTER.value], i[Columns.LAST_PLAY_DATE.value])
+
+        return result
+
+    def write_data(self, data):
+        if DEBUG_MODE:
+            return
+
+        to_write = []
+        for song in data.values():
+            list_song = [None] * (Columns.LAST_PLAY_DATE.value + 1)
+            list_song[Columns.NAME.value] = song.title
+            list_song[Columns.LINK.value] = song.url
+            list_song[Columns.COUNTER.value] = song.counter
+            list_song[Columns.LAST_PLAY_DATE.value] = song.date
+            to_write.append(list_song)
+
+        to_write.sort(key=lambda x: int(x[Columns.COUNTER.value]), reverse=True)
+        data = [
+            {
+                'range': ALL_DATA_RANGE,
+                'values': to_write
+            },
+        ]
+        body = {
+            'valueInputOption': 'RAW',
+            'data': data
+        }
+        result = self.service.spreadsheets().values().batchUpdate(
+            spreadsheetId=SPREADSHEET_ID, body=body).execute()
+
+        loginfo('{0} cells updated.'.format(result.get('totalUpdatedCells')))
+        print('{0} cells updated.'.format(result.get('totalUpdatedCells')))
 
 
 def get_service():
@@ -49,41 +96,10 @@ def get_service():
     return build('sheets', 'v4', credentials=creds)
 
 
-service = get_service()
-
-
-def read_all_data():
-    result = service.spreadsheets().values().get(spreadsheetId=SPREADSHEET_ID, range=ALL_DATA_RANGE).execute()
-    return result.get('values', [])
-
-
-def write_all_data(data):
-    if DEBUG_MODE:
-        return
-
-    data = [
-        {
-            'range': ALL_DATA_RANGE,
-            'values': data
-        },
-    ]
-    body = {
-        'valueInputOption': 'RAW',
-        'data': data
-    }
-    result = service.spreadsheets().values().batchUpdate(
-        spreadsheetId=SPREADSHEET_ID, body=body).execute()
-
-    loginfo('{0} cells updated.'.format(result.get('totalUpdatedCells')))
-    print('{0} cells updated.'.format(result.get('totalUpdatedCells')))
-
-
 def main():
-    values = read_all_data()
-    print(values)
-    values.sort(key=lambda x: int(x[Columns.COUNTER.value]))
-    print(values)
-    write_all_data(values)
+    gs = GoogleSheets()
+    songs: {str: Song} = gs.read_data()
+    print(songs.keys())
 
 
 if __name__ == '__main__':
