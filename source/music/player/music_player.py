@@ -7,10 +7,11 @@ import queue
 from discord.ext import commands
 
 from message_handler import is_from_music_channel, is_from_debug_channel
-from music_player import player_messages as pm
-from music_player.Searcher.YoutubeDL import YTDLSource
-from music_player.Searcher.searcher import Searcher
-from music_stats.music_database import MusicDatabase
+import music.player.player_messages as pm
+from music.player.Searcher.YoutubeDL import YTDLSource
+from music.player.Searcher.searcher import Searcher
+from music.song_info import SongInfo
+from music.stats.music_database import MusicDatabase
 from utilities import logerr, number_to_emojis
 
 
@@ -34,13 +35,14 @@ class Music(commands.Cog):
 
     @commands.command()
     async def play(self, ctx, *, query):
+        print(ctx.channel.members)
         """Playing song from youtube"""
         await ctx.send(pm.SEARCHING)
         async with ctx.typing():
-            song_info = self.ytdl.find(query)
+            song_info: SongInfo = self.ytdl.find(query)
             if song_info:
                 await self.collect_data(song_info, ctx)
-                self.playlist.put(SongQuery(song_info["url_suffix"], self.ytdl))
+                self.playlist.put(SongQuery(song_info.url_suffix, self.ytdl))
                 await self.run_playlist()
             else:
                 await ctx.send(pm.NO_MATCH)
@@ -52,7 +54,14 @@ class Music(commands.Cog):
             logerr("Find song impossible")
         return None
 
+    def is_channel_empty(self) -> bool:
+        return len(self.voiceClient.channel.voice_states.keys()) == 1
+
     async def run_playlist(self):
+        if self.is_channel_empty():
+            await self.disconnect()
+            return
+
         if self.is_playing:
             return
         self.is_playing = True
@@ -64,10 +73,10 @@ class Music(commands.Cog):
 
         if self.playlist.empty():
             if self.is_radio:
-                url = self.ytdl.find(self.manager.get_radio_song())["url_suffix"]
+                url = self.ytdl.find(self.manager.get_radio_song()).url_suffix
                 song = await self.load_with(self.ytdl, url)
             else:
-                await self.stop()
+                await self.disconnect()
                 return
         else:
             sq: SongQuery = self.playlist.get()
@@ -86,19 +95,19 @@ class Music(commands.Cog):
         else:
             asyncio.ensure_future(self.run_playlist(), loop=self.bot.loop)
 
-    async def collect_data(self, song_info, ctx):
+    async def collect_data(self, song_info: SongInfo, ctx):
         counter = self.manager.collect_song(song_info)
         emojis = number_to_emojis(counter)
         if self.is_playing:
-            await send_to_music(ctx, f"{pm.ENQUEUE.format(song_name=song_info['title'])}  {emojis}")
+            await send_to_music(ctx, f"{pm.ENQUEUE.format(song_name=song_info.title)}  {emojis}")
         else:
-            await send_to_music(ctx, f"{pm.START_PLAYING.format(song_name=song_info['title'])}  {emojis}")
+            await send_to_music(ctx, f"{pm.START_PLAYING.format(song_name=song_info.title)}  {emojis}")
 
     @commands.command()
     async def radio(self, ctx):
         self.is_radio = not self.is_radio
-        await self.run_playlist()
         if self.is_radio:
+            await self.run_playlist()
             await send_to_music(ctx, pm.RADIO_ENABLED)
         else:
             await send_to_music(ctx, pm.RADIO_DISABLED)
@@ -127,7 +136,14 @@ class Music(commands.Cog):
         await send_to_music(ctx, pm.SKIPPED)
 
     @commands.command()
-    async def stop(self, ctx=None):
+    async def current(self, ctx):
+        if self.current_song:
+            await send_to_music(ctx, pm.CURRENT + " " + self.current_song.title)
+        else:
+            await send_to_music(ctx, pm.NO_CURRENT)
+
+    @commands.command()
+    async def disconnect(self, ctx=None):
         """Stops and disconnects the bot from voice"""
         while not self.playlist.empty():
             self.playlist.get()
@@ -143,8 +159,7 @@ class Music(commands.Cog):
     async def ensure_voice(self, ctx):
         if self.voiceClient is None:
             if ctx.author.voice:
-                await ctx.author.voice.channel.connect()
-                self.voiceClient = ctx.voice_client
+                self.voiceClient = await ctx.author.voice.channel.connect()
             else:
                 await ctx.send("You are not connected to a voice channel.")
                 raise commands.CommandError("Author not connected to a voice channel.")

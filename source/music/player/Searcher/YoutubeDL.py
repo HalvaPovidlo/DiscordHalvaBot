@@ -4,11 +4,12 @@ import os
 import discord
 from youtube_search import YoutubeSearch
 
-from music_player.Searcher.searcher import Searcher
+from music.player.Searcher.searcher import Searcher
 import youtube_dl
 
 
 # Suppress noise about console usage from errors
+from music.song_info import SongInfo
 from utilities import logerr, loginfo
 
 youtube_dl.utils.bug_reports_message = lambda: ''
@@ -69,7 +70,7 @@ class YTDLSource(Searcher):
         os.rename(filename, song_filename)
         return cls(source=discord.FFmpegPCMAudio(song_filename, **ffmpeg_options), data=data, filename=song_filename)
 
-    def find(self, query: str):
+    def find(self, query: str) -> SongInfo:
         return find_song(query)
 
 
@@ -82,13 +83,13 @@ def find_free_name(name: str):
     return new_name
 
 
-def find_song(name: str):
+def find_song(name: str) -> SongInfo:
     print("Finding", name)
     try:
-        song_info = YoutubeSearch(name, max_results=1).to_dict()
-        print("Found", song_info[0]['title'])
-        loginfo(f"Found {song_info[0]['title']} : {song_info[0]['duration']}")
-        return song_info[0]
+        song_info: SongInfo = SongInfo(YoutubeSearch(name, max_results=1).to_dict()[0])
+        print("Found", song_info.title)
+        loginfo(f"Found {song_info.title} : {song_info.duration}")
+        return song_info
 
     except Exception:
         logerr(f"YoutubeSearch({name}, max_results=1)")
