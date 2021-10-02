@@ -3,13 +3,13 @@ from discord import Message
 from discord.ext import commands
 
 import general_messages as gm
-from music_stats.music_database import MusicDatabase
+from music.stats.music_database import MusicDatabase
 from secretConfig import discord_settings
 from message_handler import MessageHandler, is_from_music_channel, is_from_debug_channel
 import utilities
 from movie.movie_manager import MovieManager
 from chess.chess_manager import ChessManager
-from music_player.music import Music
+from music.player.music_player import Music
 
 bot: discord.ext.commands.Bot = commands.Bot(command_prefix=discord_settings['prefix'])
 bot.remove_command('help')

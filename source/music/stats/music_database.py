@@ -2,8 +2,9 @@ import random
 
 from discord.ext import commands
 
-from music_stats import google_sheets_api as gs
-from music_stats.google_sheets_api import Columns
+from music.song_info import SongInfo
+from music.stats import google_sheets_api as gs
+from music.stats.google_sheets_api import Columns
 from utilities import Status
 from utilities import loginfo
 from utilities import logerr
@@ -83,8 +84,8 @@ class MusicDatabase(commands.Cog):
             loginfo("Nothing to update")
             print("Nothing to update")
 
-    def collect_song(self, song_info) -> int:
-        response = self._add_song_to_sheet(song_info['title'], 'https://www.youtube.com' + song_info['url_suffix'])
+    def collect_song(self, song_info: SongInfo) -> int:
+        response = self._add_song_to_sheet(song_info.title, 'https://www.youtube.com' + song_info.url_suffix)
         self._any_updates = True
         self._update_sheet()
         return response

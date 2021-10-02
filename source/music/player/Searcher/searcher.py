@@ -2,6 +2,8 @@ import os
 
 import discord
 
+from music.song_info import SongInfo
+
 
 class Searcher(discord.PCMVolumeTransformer):
     def __init__(self, source, *, data, filename, volume=0.5):
@@ -18,7 +20,7 @@ class Searcher(discord.PCMVolumeTransformer):
         """Returns: cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)"""
         pass
 
-    def find(self, query: str):
+    def find(self, query: str) -> SongInfo:
         """Returns song's data"""
         pass
 
