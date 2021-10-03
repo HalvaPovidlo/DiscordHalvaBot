@@ -35,7 +35,6 @@ class Music(commands.Cog):
 
     @commands.command()
     async def play(self, ctx, *, query):
-        print(ctx.channel.members)
         """Playing song from youtube"""
         await ctx.send(pm.SEARCHING)
         async with ctx.typing():

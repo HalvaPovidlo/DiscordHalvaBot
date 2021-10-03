@@ -39,7 +39,7 @@ class GoogleSheets(Database):
         result = {}
         for i in data:
             result[i[Columns.NAME.value]] = Song(i[Columns.NAME.value], i[Columns.LINK.value],
-                                                 i[Columns.COUNTER.value], i[Columns.LAST_PLAY_DATE.value])
+                                                 int(i[Columns.COUNTER.value]), i[Columns.LAST_PLAY_DATE.value])
 
         return result
 
