@@ -50,7 +50,7 @@ class Music(commands.Cog):
         try:
             return await searcher.from_url(url, loop=self.bot.loop)
         except Exception:
-            logerr("Find song impossible")
+            logerr("Load song impossible")
         return None
 
     def is_channel_empty(self) -> bool:
@@ -67,7 +67,7 @@ class Music(commands.Cog):
 
         if self.current_song:
             if self.is_loop:
-                self.voiceClient.play(self.current_song, after=self._after_start_playlist)
+                self.voiceClient.play(self.current_song, after=self._after_run_playlist)
                 return
 
         if self.playlist.empty():
@@ -83,11 +83,11 @@ class Music(commands.Cog):
 
         self.current_song = song
         if song:
-            self.voiceClient.play(song, after=self._after_start_playlist)
+            self.voiceClient.play(song, after=self._after_run_playlist)
         else:
-            self._after_start_playlist(None)
+            self._after_run_playlist(None)
 
-    def _after_start_playlist(self, err):
+    def _after_run_playlist(self, err):
         self.is_playing = False
         if err:
             logerr(err)
@@ -110,16 +110,6 @@ class Music(commands.Cog):
             await send_to_music(ctx, pm.RADIO_ENABLED)
         else:
             await send_to_music(ctx, pm.RADIO_DISABLED)
-
-    # @commands.command()
-    # async def stream(self, ctx, *, url):
-    #     """Streams from a url (same as yt, but doesn't predownload)"""
-    #
-    #     async with ctx.typing():
-    #         player = await YTDLSource.from_url(url, loop=self.bot.loop, stream=True)
-    #         self.voiceClient.play(player, after=lambda e: print('Player error: %s' % e) if e else None)
-    #
-    #     await ctx.send('Now playing: {}'.format(player.title))
 
     @commands.command()
     async def loop(self, ctx):
@@ -152,7 +142,6 @@ class Music(commands.Cog):
         self.is_playing = False
         await self.voiceClient.disconnect()
 
-    # @stream.before_invoke
     @play.before_invoke
     @radio.before_invoke
     async def ensure_voice(self, ctx):
@@ -169,7 +158,7 @@ class Music(commands.Cog):
     @skip.before_invoke
     async def is_bot_available(self, ctx):
         if self.voiceClient is None or not self.voiceClient.is_playing():
-            await ctx.send("You are not connected to a voice channel.")
+            await ctx.send("Bot not connected or not playing anything.")
             raise commands.CommandError("Bot not connected or not playing anything.")
 
 
