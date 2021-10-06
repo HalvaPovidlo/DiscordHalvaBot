@@ -45,6 +45,7 @@ class Music(commands.Cog):
                 await self.run_playlist()
             else:
                 await ctx.send(pm.NO_MATCH)
+                await self.disconnect()
 
     async def load_with(self, searcher: Searcher, url) -> Searcher:
         try:
