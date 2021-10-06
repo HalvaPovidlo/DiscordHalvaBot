@@ -156,12 +156,14 @@ class Music(commands.Cog):
     @play.before_invoke
     @radio.before_invoke
     async def ensure_voice(self, ctx):
-        if self.voiceClient is None:
+        if self.voiceClient is None or not self.voiceClient.is_connected():
             if ctx.author.voice:
                 self.voiceClient = await ctx.author.voice.channel.connect()
             else:
                 await ctx.send("You are not connected to a voice channel.")
                 raise commands.CommandError("Author not connected to a voice channel.")
+        else:
+            await ctx.send("You are not connected to the my voice channel.")
 
     @loop.before_invoke
     @skip.before_invoke
