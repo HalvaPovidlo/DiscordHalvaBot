@@ -3,16 +3,11 @@ import os
 
 import discord
 from youtube_search import YoutubeSearch
+import yt_dlp
 
 from music.player.Searcher.searcher import Searcher
-import youtube_dl
-
-
-# Suppress noise about console usage from errors
 from music.song_info import SongInfo
 from utilities import logerr, loginfo
-
-youtube_dl.utils.bug_reports_message = lambda: ''
 
 stubfile = "stubname.mp3"
 
@@ -39,7 +34,7 @@ ffmpeg_options = {
     'options': '-vn'
 }
 
-ytdl = youtube_dl.YoutubeDL(ytdl_format_options)
+ytdl = yt_dlp.YoutubeDL(ytdl_format_options)
 
 
 class YTDLSource(Searcher):
@@ -58,7 +53,6 @@ class YTDLSource(Searcher):
 
         song_filename = find_free_name(song_id + ".mp3")
 
-        print(to_download)
         loop = loop or asyncio.get_event_loop()
         data = await loop.run_in_executor(None, lambda: ytdl.extract_info(to_download, download=not stream))
 
