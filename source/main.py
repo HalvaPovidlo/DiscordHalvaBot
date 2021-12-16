@@ -3,6 +3,7 @@ from discord import Message
 from discord.ext import commands
 
 import domain.general_messages as gm
+import domain.utilities
 from music.stats.music_database import MusicDatabase
 from secretConfig import discord_settings
 from message_handler import MessageHandler, is_from_music_channel, is_from_debug_channel
@@ -28,7 +29,7 @@ async def on_command(ctx: commands.Context):
     user = ctx.author
     message: Message = ctx.message
     command = message.content
-    utilities.loginfo('{} used :{}: in {}'.format(user, command, message.channel))
+    domain.utilities.loginfo('{} used :{}: in {}'.format(user, command, message.channel))
     if is_from_music_channel(message) or is_from_debug_channel(message):
         return
     if message.content.startswith("$play") or \
@@ -57,7 +58,7 @@ async def hello(ctx: commands.Context):
 async def hello_error(ctx: commands.Context, error):
     if isinstance(error, commands.BadArgument):
         await ctx.send('I could not find that member...')
-    utilities.log_error_to_channel(ctx, error)
+    domain.utilities.log_error_to_channel(ctx, error)
 
 
 @bot.command()
@@ -87,7 +88,7 @@ async def clearchannel(ctx: commands.Context):
 
 
 def main():
-    utilities.loginfo("started")
+    domain.utilities.loginfo("started")
 
     md = MusicDatabase()
     bot.add_cog(md)

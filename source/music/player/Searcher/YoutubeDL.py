@@ -7,7 +7,7 @@ import yt_dlp
 
 from music.player.Searcher.searcher import Searcher
 from music.song_info import SongInfo
-from utilities import logerr, loginfo
+from domain.utilities import logerr, loginfo
 
 stubfile = "stubname.mp3"
 
