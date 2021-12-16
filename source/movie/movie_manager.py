@@ -1,7 +1,7 @@
 import pandas as pd
 from discord.ext import commands
 
-from utilities import log_error_to_channel, logerr
+from domain.utilities import log_error_to_channel, logerr
 
 
 class MovieManager(commands.Cog):

@@ -2,7 +2,7 @@ import berserk
 from discord.ext import commands
 from secretConfig import CHESS_API_TOKEN
 
-from utilities import log_error_to_channel
+from domain.utilities import log_error_to_channel
 
 session = berserk.TokenSession(CHESS_API_TOKEN)
 client = berserk.Client(session=session)

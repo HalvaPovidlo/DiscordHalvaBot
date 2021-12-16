@@ -12,7 +12,7 @@ from music.player.Searcher.YoutubeDL import YTDLSource
 from music.player.Searcher.searcher import Searcher
 from music.song_info import SongInfo
 from music.stats.music_database import MusicDatabase
-from utilities import logerr, number_to_emojis
+from domain.utilities import logerr, number_to_emojis
 
 
 class SongQuery:
@@ -51,7 +51,7 @@ class Music(commands.Cog):
         try:
             return await searcher.from_url(url, loop=self.bot.loop)
         except Exception:
-            logerr("Load song impossible")
+            logerr("Impossible to download song")
         return None
 
     def is_channel_empty(self) -> bool:
@@ -124,6 +124,10 @@ class Music(commands.Cog):
     async def skip(self, ctx):
         self.voiceClient.stop()
         await send_to_music(ctx, pm.SKIPPED)
+
+    @commands.command()
+    async def fs(self, ctx):
+        await self.skip(ctx)
 
     @commands.command()
     async def current(self, ctx):

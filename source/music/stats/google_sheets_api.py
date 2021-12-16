@@ -9,7 +9,7 @@ from music.stats.database import Database
 from music.stats.song import Song
 from secretConfig import gsheets_settings
 from secretConfig import discord_settings
-from utilities import loginfo
+from domain.utilities import loginfo
 
 DEBUG_MODE = discord_settings['debug']
 

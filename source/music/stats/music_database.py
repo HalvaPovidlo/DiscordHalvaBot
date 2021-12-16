@@ -5,14 +5,15 @@ from discord.ext import commands
 from music.song_info import SongInfo
 from music.stats.database import Database
 from music.stats.google_sheets_api import GoogleSheets
+from music.stats.searcher import Searcher
 from music.stats.song import Song
-from utilities import loginfo
-from utilities import logerr
+from domain.utilities import loginfo
+from domain.utilities import logerr
 from datetime import date
 from time import localtime
-import general_messages as gm
+import domain.general_messages as gm
 
-from utilities import log_error_to_channel
+from domain.utilities import log_error_to_channel
 
 import secretConfig
 
@@ -21,6 +22,9 @@ prefix = secretConfig.discord_settings["prefix"]
 MAX_SONGS_FROM_RANDOM = 10
 MAX_MESSAGE_LENGTH = 2000
 
+PREDICTS_NUMBER = 3
+PREDICT_LIMIT = 0.08
+
 
 class MusicDatabase(commands.Cog):
     def __init__(self):
@@ -28,6 +32,7 @@ class MusicDatabase(commands.Cog):
         self.songs: {str: Song} = self.db.read_data()
         loginfo("Loaded " + str(len(self.songs)) + " songs")
         print("Loaded " + str(len(self.songs)) + " songs")
+        self.searcher: Searcher = Searcher(self.songs.keys())
         self._any_updates = False
         self._last_update = localtime().tm_min
 
@@ -98,13 +103,22 @@ class MusicDatabase(commands.Cog):
     def find_songs(self, to_find: str):
         if len(to_find) < 3:
             return gm.SHORT_REQUEST
-        to_find = to_find.lower()
-        result_songs = ""
 
+        prediction = self.searcher.get_prediction(to_find)
+        to_find_arr = [to_find]
+        counter = 0
+        for p in prediction:
+            if counter < PREDICTS_NUMBER and p[1] > PREDICT_LIMIT:
+                counter += 1
+                to_find_arr.append(p[0])
+
+        result_songs = ""
         for i in self.songs.keys():
-            if len(result_songs) + len(i) + 10 < MAX_MESSAGE_LENGTH:
-                if i.lower().find(to_find) != -1:
-                    result_songs += "`" + prefix + "play " + i + "`\n"
+            song = i.lower()
+            for j in range(len(to_find_arr)):
+                if song.find(to_find_arr[j]) != -1:
+                    if len(result_songs) + len(i) + 10 < MAX_MESSAGE_LENGTH:
+                        result_songs += "`" + '$' + "play " + i + "`\n"
 
         return result_songs
 

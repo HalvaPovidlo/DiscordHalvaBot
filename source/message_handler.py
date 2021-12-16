@@ -1,7 +1,7 @@
 from discord import Client
 from discord import Message
 
-import general_messages as gm
+import domain.general_messages as gm
 from dirty_talk_detector.dirty_talk_detector import detect
 from secretConfig import discord_settings
 
