@@ -48,7 +48,7 @@ Sign in to [Google API Console](https://console.developers.google.com)
 
 Credentials -> OAuth client -> DOWNLOAD JSON
 
-Move the json file to `source/music_manager/` and rename it to `credentials.json`.
+Move the json file to `source/music/stats/` and rename it to `credentials.json`.
 
 Run `main.py`.
 

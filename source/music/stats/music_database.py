@@ -6,13 +6,13 @@ from music.song_info import SongInfo
 from music.stats.database import Database
 from music.stats.google_sheets_api import GoogleSheets
 from music.stats.song import Song
-from utilities import loginfo
-from utilities import logerr
+from domain.utilities import loginfo
+from domain.utilities import logerr
 from datetime import date
 from time import localtime
-import general_messages as gm
+import domain.general_messages as gm
 
-from utilities import log_error_to_channel
+from domain.utilities import log_error_to_channel
 
 import secretConfig
 
