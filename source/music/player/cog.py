@@ -53,6 +53,8 @@ class MusicCog(commands.Cog):
                 # TODO rework database for VK
                 if is_collect:
                     await self.collect_data(song_info, ctx)
+                else:
+                    await send_to_music(ctx, f"Song from VK {song_info.title}")
                 self.playlist.put(SongQuery(song_info, searcher))
                 await self.run_playlist()
             else:
