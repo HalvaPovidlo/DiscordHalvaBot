@@ -28,6 +28,11 @@ gsheets_settings = {
     'film': '***'
 }
 
+vk = {
+    'login': '***',
+    'password': '***'
+}
+
 CHESS_API_TOKEN = '***'
 ```
 Replace `token` with token from Discord Developer Portal.

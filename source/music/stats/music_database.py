@@ -78,7 +78,7 @@ class MusicDatabase(commands.Cog):
             print("Nothing to update")
 
     def collect_song(self, song_info: SongInfo) -> int:
-        response = self._add_song_to_sheet(song_info.title, 'https://www.youtube.com' + song_info.url_suffix)
+        response = self._add_song_to_sheet(song_info.title, 'https://www.youtube.com' + song_info.download_link)
         self._any_updates = True
         self._update_sheet()
         return response
