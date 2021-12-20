@@ -10,7 +10,7 @@ from message_handler import MessageHandler, is_from_music_channel, is_from_debug
 
 from movie.movie_manager import MovieManager
 from chess.chess_manager import ChessManager
-from music.player.music_player import Music
+from music.player.cog import MusicCog
 
 bot: discord.ext.commands.Bot = commands.Bot(command_prefix=discord_settings['prefix'])
 bot.remove_command('help')
@@ -92,7 +92,7 @@ def main():
 
     md = MusicDatabase()
     bot.add_cog(md)
-    bot.add_cog(Music(bot, md))
+    bot.add_cog(MusicCog(bot, md))
     bot.add_cog(ChessManager())
     bot.add_cog(MovieManager())
 

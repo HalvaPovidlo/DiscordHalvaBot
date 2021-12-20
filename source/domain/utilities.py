@@ -1,3 +1,4 @@
+import os
 from datetime import datetime
 from enum import Enum
 import logging
@@ -79,3 +80,12 @@ def log_error_to_channel(ctx, error):
     if isinstance(error, commands.CheckFailure):
         return
     logerr("{err} in message: {msg}".format(err=error, msg=ctx.message.content))
+
+
+def find_free_name(name: str):
+    i = 0
+    new_name = name
+    while os.path.exists(new_name):
+        new_name = str(i) + name
+        i += 1
+    return new_name

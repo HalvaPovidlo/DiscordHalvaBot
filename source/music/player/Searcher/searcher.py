@@ -6,17 +6,17 @@ from music.song_info import SongInfo
 
 
 class Searcher(discord.PCMVolumeTransformer):
-    def __init__(self, source, *, data, filename, volume=0.5):
+    def __init__(self, source, *, song_info: SongInfo, filename, volume=0.5):
         super().__init__(source, volume)
 
-        self.data = data
+        self.song_info = song_info
 
         self.filename = filename
-        self.title = data.get('title')
-        self.url = data.get('url')
+        self.title = song_info.title
+        self.url = song_info.download_link
 
     @classmethod
-    async def from_url(cls, url, *, loop=None, stream=False):
+    async def download(cls, song_info: SongInfo, *, loop=None, stream=False):
         """Returns: cls(discord.FFmpegPCMAudio(filename, **ffmpeg_options), data=data)"""
         pass
 

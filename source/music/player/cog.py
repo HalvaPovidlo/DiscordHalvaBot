@@ -8,6 +8,7 @@ from discord.ext import commands
 
 from message_handler import is_from_music_channel, is_from_debug_channel
 import music.player.player_messages as pm
+from music.player.Searcher.VK import VK
 from music.player.Searcher.YoutubeDL import YTDLSource
 from music.player.Searcher.searcher import Searcher
 from music.song_info import SongInfo
@@ -16,12 +17,12 @@ from domain.utilities import logerr, number_to_emojis
 
 
 class SongQuery:
-    def __init__(self, url, searcher: Searcher):
-        self.url = url
+    def __init__(self, song_info: SongInfo, searcher: Searcher):
+        self.song_info = song_info
         self.searcher = searcher
 
 
-class Music(commands.Cog):
+class MusicCog(commands.Cog):
     def __init__(self, bot: discord.ext.commands.Bot, manager: MusicDatabase):
         self.bot: discord.ext.commands.Bot = bot
         self.voiceClient: VoiceClient = None
@@ -29,29 +30,42 @@ class Music(commands.Cog):
         self.is_radio: bool = False
         self.current_song: Searcher = None
         self.manager: MusicDatabase = manager
-        self.ytdl: Searcher = YTDLSource(source=None, data={}, filename="")
+        self.ytdl: Searcher = YTDLSource(source=None, song_info=SongInfo(), filename="")
+        self.vk: Searcher = VK(source=None, song_info=SongInfo(), filename="")
         self.playlist = queue.Queue()  # of SongQueries
         self.is_playing = False  # Atomic
 
     @commands.command()
     async def play(self, ctx, *, query):
         """Playing song from youtube"""
+        await self.play_with(self.ytdl, ctx, query, is_collect=True)
+
+    @commands.command()
+    async def vk(self, ctx, *, query):
+        """Playing song from vk"""
+        await self.play_with(self.vk, ctx, query)
+
+    async def play_with(self, searcher: Searcher, ctx, query, is_collect=False):
         await ctx.send(pm.SEARCHING)
         async with ctx.typing():
-            song_info: SongInfo = self.ytdl.find(query)
+            song_info: SongInfo = searcher.find(query)
             if song_info:
-                await self.collect_data(song_info, ctx)
-                self.playlist.put(SongQuery(song_info.url_suffix, self.ytdl))
+                # TODO rework database for VK
+                if is_collect:
+                    await self.collect_data(song_info, ctx)
+                self.playlist.put(SongQuery(song_info, searcher))
                 await self.run_playlist()
             else:
                 await ctx.send(pm.NO_MATCH)
                 await self.disconnect()
 
-    async def load_with(self, searcher: Searcher, url) -> Searcher:
+    async def load_with(self, searcher: Searcher, song_info: SongInfo) -> Searcher:
         try:
-            return await searcher.from_url(url, loop=self.bot.loop)
-        except Exception:
-            logerr("Impossible to download song")
+            print(searcher)
+            print(song_info)
+            return await searcher.download(song_info, loop=self.bot.loop)
+        except Exception as e:
+            logerr(f"Impossible to download song {e}")
         return None
 
     def is_channel_empty(self) -> bool:
@@ -73,14 +87,14 @@ class Music(commands.Cog):
 
         if self.playlist.empty():
             if self.is_radio:
-                url = self.ytdl.find(self.manager.get_radio_song()).url_suffix
-                song = await self.load_with(self.ytdl, url)
+                song_info = self.ytdl.find(self.manager.get_radio_song())
+                song = await self.load_with(self.ytdl, song_info)
             else:
                 await self.disconnect()
                 return
         else:
             sq: SongQuery = self.playlist.get()
-            song = await self.load_with(sq.searcher, sq.url)
+            song = await self.load_with(sq.searcher, sq.song_info)
 
         self.current_song = song
         if song:
@@ -148,6 +162,7 @@ class Music(commands.Cog):
         await self.voiceClient.disconnect()
 
     @play.before_invoke
+    @vk.before_invoke
     @radio.before_invoke
     async def ensure_voice(self, ctx):
         if self.voiceClient is None or not self.voiceClient.is_connected():
