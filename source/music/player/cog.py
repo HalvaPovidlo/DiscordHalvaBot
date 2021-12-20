@@ -63,8 +63,6 @@ class MusicCog(commands.Cog):
 
     async def load_with(self, searcher: Searcher, song_info: SongInfo) -> Searcher:
         try:
-            print(searcher)
-            print(song_info)
             return await searcher.download(song_info, loop=self.bot.loop)
         except Exception as e:
             logerr(f"Impossible to download song {e}")
