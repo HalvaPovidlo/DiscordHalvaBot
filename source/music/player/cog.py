@@ -54,7 +54,10 @@ class MusicCog(commands.Cog):
                 if is_collect:
                     await self.collect_data(song_info, ctx)
                 else:
-                    await send_to_music(ctx, f"Song from VK {song_info.title}")
+                    if self.is_playing:
+                        await send_to_music(ctx, f"{pm.ENQUEUE.format(song_name=song_info.title)}")
+                    else:
+                        await send_to_music(ctx, f"{pm.START_PLAYING.format(song_name=song_info.title)}")
                 self.playlist.put(SongQuery(song_info, searcher))
                 await self.run_playlist()
             else:
