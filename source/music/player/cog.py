@@ -81,11 +81,13 @@ class MusicCog(commands.Cog):
 
         if self.is_playing:
             return
+        await self.bot.change_presence(activity=None)
         self.is_playing = True
 
         if self.current_song:
             if self.is_loop:
                 self.voiceClient.play(self.current_song, after=self._after_run_playlist)
+                await self.set_listening_status(self.current_song.title)
                 return
 
         if self.playlist.empty():
@@ -102,6 +104,7 @@ class MusicCog(commands.Cog):
         self.current_song = song
         if song:
             self.voiceClient.play(song, after=self._after_run_playlist)
+            await self.set_listening_status(self.current_song.title)
         else:
             self._after_run_playlist(None)
 
@@ -119,6 +122,9 @@ class MusicCog(commands.Cog):
             await send_to_music(ctx, f"{pm.ENQUEUE.format(song_name=song_info.title)}  {emojis}")
         else:
             await send_to_music(ctx, f"{pm.START_PLAYING.format(song_name=song_info.title)}  {emojis}")
+
+    async def set_listening_status(self, song_name):
+        await self.bot.change_presence(activity=discord.Activity(type=discord.ActivityType.listening, name=song_name))
 
     @commands.command()
     async def radio(self, ctx):

@@ -131,6 +131,7 @@ dmypy.json
 # Secret files
 *credentials.json
 *token.pickle
+vk_config*.json
 source/secretConfig.py
 source/dirty_talk_detector/secretData.csv
 
