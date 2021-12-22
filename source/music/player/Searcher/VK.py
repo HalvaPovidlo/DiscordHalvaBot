@@ -32,6 +32,7 @@ class VK(Searcher):
                 print(error_msg)
                 logerr(str(error_msg))
                 return
+            self.vk_audio = vk_api.audio.VkAudio(self.vk_session)
 
     @classmethod
     async def download(cls, song_info: SongInfo, *, loop=None, stream=False) -> Searcher:
@@ -46,17 +47,20 @@ class VK(Searcher):
     def find(self, query: str) -> SongInfo:
         print("Finding", query)
         try:
-            self.vk_session.auth()
-            vk_audio = vk_api.audio.VkAudio(self.vk_session)
             song_info: SongInfo = SongInfo()
-            out = list(vk_audio.search(query, count=1))[0]
+            search_result = list(self.vk_audio.search(query, count=1))
+            if len(search_result) == 0:
+                logerr(f"vk_audio({query}, count=1) can't find any song")
+                return None
+            out = search_result[0]
             song_info.fromVK(out)
             print("Found", song_info.title)
             loginfo(f"Found {song_info.title} : {song_info.duration}")
             return song_info
-
         except Exception as e:
             logerr(f"vk_audio({query}, count=1) {e}")
+            self.vk_session.auth()
+            self.vk_audio = vk_api.audio.VkAudio(self.vk_session)
             return None
 
 
