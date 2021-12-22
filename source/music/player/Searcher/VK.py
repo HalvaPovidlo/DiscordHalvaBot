@@ -48,14 +48,19 @@ class VK(Searcher):
         print("Finding", query)
         try:
             song_info: SongInfo = SongInfo()
-            out = list(self.vk_audio.search(query, count=1))[0]
+            search_result = list(self.vk_audio.search(query, count=1))
+            if len(search_result) == 0:
+                loginfo(f"vk_audio({query}, count=1) can't find any song")
+                return None
+            out = search_result[0]
             song_info.fromVK(out)
             print("Found", song_info.title)
             loginfo(f"Found {song_info.title} : {song_info.duration}")
             return song_info
-
         except Exception as e:
             logerr(f"vk_audio({query}, count=1) {e}")
+            self.vk_session.auth()
+            self.vk_audio = vk_api.audio.VkAudio(self.vk_session)
             return None
 
 
