@@ -50,7 +50,7 @@ class VK(Searcher):
             song_info: SongInfo = SongInfo()
             search_result = list(self.vk_audio.search(query, count=1))
             if len(search_result) == 0:
-                logerr(f"vk_audio({query}, count=1) can't find any song")
+                loginfo(f"vk_audio({query}, count=1) can't find any song")
                 return None
             out = search_result[0]
             song_info.fromVK(out)
