@@ -1,14 +1,16 @@
 import argparse
+from os import path
 
 import domain.utilities
 from bot import HalvaBot
 from chess.chess_manager import ChessManager
+from domain.secretConfig import SecretConfig
 from movie.movie_manager import MovieManager
 from music.stats.google_sheets_api import GoogleSheets
 from music.stats.local_json_db import JSONDatabase
 from music.stats.music_database import MusicDatabase
 
-GSHEET_OPTION = "gsheet"
+GSHEET_OPTION = "gsheets"
 JSON_OPTION = "json"
 
 

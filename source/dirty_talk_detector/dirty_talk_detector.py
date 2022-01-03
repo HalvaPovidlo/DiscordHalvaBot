@@ -1,9 +1,11 @@
 import math
 import re
 import os.path
+import sys
+
 from nltk.stem.snowball import SnowballStemmer
 
-path_weight = os.path.join(os.path.dirname(os.path.realpath(__file__)), 'secretData.csv')
+path_weight = os.path.join(os.path.dirname(os.path.realpath(sys.modules['__main__'].__file__)), 'secretData.csv')
 
 map_idf = {}
 
