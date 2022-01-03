@@ -9,7 +9,7 @@ from domain.utilities import find_free_name, loginfo, logerr
 from music.player.Searcher.searcher import Searcher
 from music.song_info import SongInfo
 
-from domain.secretConfig import vk
+from domain.secretConfig import secret_config as sc
 
 stubfile = "stubname.mp3"
 
@@ -25,7 +25,7 @@ class VK(Searcher):
         else:
             super().__init__(discord.FFmpegPCMAudio(stubfile, **ffmpeg_options),
                              song_info=song_info, volume=volume, filename=filename)
-            self.vk_session = vk_api.VkApi(vk['login'], vk['password'])
+            self.vk_session = vk_api.VkApi(sc.vk()['login'], sc.vk()['password'])
             try:
                 self.vk_session.auth()
             except vk_api.AuthError as error_msg:

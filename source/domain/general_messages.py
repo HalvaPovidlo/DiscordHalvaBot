@@ -1,6 +1,6 @@
-from domain import secretConfig
+from domain.secretConfig import secret_config as sc
 
-px = secretConfig.discord_settings["prefix"]
+px = sc.discord()["prefix"]
 
 HELP = "`" + px + "random` - проиграть случайную песню из таблицы\n" \
        "`" + px + "search` - выбрать все песни из таблицы по введенному слову\n" \
@@ -19,7 +19,7 @@ SHORT_REQUEST = "Напиши хотя бы 3 буквы <:PepeHands:81704302305
 NEW_SONG = ["Новая песня добавлена <a:PepoDance:817043023149793361>",
             "Новая песня добавлена <a:catJAM:817043174840205312>"]
 
-SHEET_LINK = "https://docs.google.com/spreadsheets/d/" + secretConfig.gsheets_settings['id'] + "/edit#gid=0"
+SHEET_LINK = "https://docs.google.com/spreadsheets/d/" +sc.gsheets()['id'] + "/edit#gid=0"
 
 GITHUB_LINK = "https://github.com/HalvaPovidlo/DiscordHalvaBot"
 
@@ -32,7 +32,7 @@ YOUTUBE_PIPIBIBA = "https://www.youtube.com/channel/UCk2lvpg_bU6atRIKSUfWKUw"
 
 YOUTUBE_HALVA = "https://www.youtube.com/channel/UCr8LVDMr0pdslRm8SzQ23Sg"
 
-FILMS_LINK = f"https://docs.google.com/spreadsheets/d/{secretConfig.gsheets_settings['film']}/edit#gid=1519951860"
+FILMS_LINK = f"https://docs.google.com/spreadsheets/d/{sc.gsheets()['film']}/edit#gid=1519951860"
 
 
 ALL_LINKS = "`Песни:` <" + SHEET_LINK + ">\n" \

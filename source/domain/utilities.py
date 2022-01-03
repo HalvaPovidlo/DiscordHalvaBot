@@ -5,9 +5,9 @@ import logging
 
 from discord.ext import commands
 
-from domain.secretConfig import discord_settings
+from domain.secretConfig import secret_config as sc
 
-if not discord_settings['debug']:
+if not sc.discord()['debug']:
     logging.basicConfig(level=logging.INFO)
 
 

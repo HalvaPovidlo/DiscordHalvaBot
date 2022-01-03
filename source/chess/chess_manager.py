@@ -1,16 +1,17 @@
 import berserk
 from discord.ext import commands
-from domain.secretConfig import CHESS_API_TOKEN
+from domain.secretConfig import secret_config
 
 from domain.utilities import log_error_to_channel
 
-session = berserk.TokenSession(CHESS_API_TOKEN)
-client = berserk.Client(session=session)
-
 
 class ChessManager(commands.Cog):
+    def __init__(self):
+        self.session = berserk.TokenSession(secret_config.lichess()['token'])
+        self.client = berserk.Client(session=self.session)
+
     def create_game(self, variant: str = None):
-        return client.challenges.create_open(clock_limit=None,
+        return self.client.challenges.create_open(clock_limit=None,
                                              clock_increment=None,
                                              variant=variant,
                                              position=None)['challenge']['url']

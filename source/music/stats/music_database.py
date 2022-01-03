@@ -14,7 +14,7 @@ from music.stats.database import Database
 from music.stats.searcher import Searcher
 from music.stats.song import Song
 
-prefix = secretConfig.discord_settings["prefix"]
+prefix = secretConfig.secret_config.discord()["prefix"]
 
 MAX_SONGS_FROM_RANDOM = 10
 MAX_MESSAGE_LENGTH = 2000

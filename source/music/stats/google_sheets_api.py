@@ -8,11 +8,10 @@ from google.auth.transport.requests import Request
 
 from music.stats.database import Database
 from music.stats.song import Song
-from domain.secretConfig import gsheets_settings
-from domain.secretConfig import discord_settings
+from domain.secretConfig import secret_config as sc
 from domain.utilities import loginfo
 
-DEBUG_MODE = discord_settings['debug']
+DEBUG_MODE = sc.discord()['debug']
 
 
 class Columns(Enum):
@@ -26,7 +25,7 @@ class Columns(Enum):
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 
 # The ID and range of a sample spreadsheet.
-SPREADSHEET_ID = gsheets_settings['id']
+SPREADSHEET_ID = sc.gsheets()['id']
 ALL_DATA_RANGE = 'A2:D9000'
 
 

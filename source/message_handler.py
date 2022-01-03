@@ -3,7 +3,7 @@ from discord import Message
 
 import domain.general_messages as gm
 from dirty_talk_detector.dirty_talk_detector import detect
-from domain.secretConfig import discord_settings
+from domain.secretConfig import secret_config as sc
 
 
 def is_from_debug_channel(msg: Message) -> bool:
@@ -19,7 +19,7 @@ class MessageHandler:
 
     def __init__(self, client: Client):
         self._client: Client = client
-        self._is_debug_mode: bool = discord_settings['debug']
+        self._is_debug_mode: bool = sc.discord()['debug']
         self._music_bot = None
 
     async def delete_music_message(self, message: Message):
@@ -33,7 +33,7 @@ class MessageHandler:
     def skip_message(self, message: Message) -> bool:
         return message.author == self._client.user or \
                self._is_debug_mode != is_from_debug_channel(message) or \
-               message.content.startswith(discord_settings['prefix'])
+               message.content.startswith(sc.discord()['prefix'])
 
     async def process_message(self, message: Message):
         if self.skip_message(message):
