@@ -19,7 +19,7 @@ SHORT_REQUEST = "Напиши хотя бы 3 буквы <:PepeHands:81704302305
 NEW_SONG = ["Новая песня добавлена <a:PepoDance:817043023149793361>",
             "Новая песня добавлена <a:catJAM:817043174840205312>"]
 
-SHEET_LINK = "https://docs.google.com/spreadsheets/d/" +sc.gsheets()['id'] + "/edit#gid=0"
+SHEET_LINK = f"https://docs.google.com/spreadsheets/d/{sc.gsheets()['song']}/edit#gid=0"
 
 GITHUB_LINK = "https://github.com/HalvaPovidlo/DiscordHalvaBot"
 

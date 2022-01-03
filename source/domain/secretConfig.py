@@ -33,7 +33,13 @@ class SecretConfig:
     def gsheets(self):
         if self._gsheets_settings is not None:
             return self._gsheets_settings
-        self._gsheets_settings = read_options(self._config, 'gsheets', 'id', 'film')
+
+        self._gsheets_settings = {'song': None, 'film': None}
+        if self._config.has_option('gsheets', 'song'):
+            self._gsheets_settings['song'] = self._config.get('gsheets', 'song')
+        if self._config.has_option('gsheets', 'film'):
+            self._gsheets_settings['film'] = self._config.get('gsheets', 'film')
+
         return self._gsheets_settings
 
     def vk(self):
@@ -58,5 +64,6 @@ def read_options(config: configparser.ConfigParser, section, *options):
     return settings
 
 
-secret_config = SecretConfig(
-    path.join(path.dirname(path.abspath(sys.modules['__main__'].__file__)), 'secret_config.ini'))
+# secret_config = SecretConfig(
+#     path.join(path.dirname(path.abspath(sys.modules['__main__'].__file__)), 'secret_config.ini'))
+secret_config = SecretConfig('secret_config.ini')

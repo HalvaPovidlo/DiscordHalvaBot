@@ -79,7 +79,7 @@ async def clearchannel(ctx: commands.Context):
 
 
 class HalvaBot:
-    def __init__(self, md: MusicDatabase,  *cogs: commands.Cog):
+    def __init__(self, md: MusicDatabase,  cogs: [commands.Cog]):
         self.bot = bot
         self.bot.add_cog(md)
         # Bad TODO

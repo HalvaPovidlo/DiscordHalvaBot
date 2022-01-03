@@ -14,6 +14,7 @@ from music.player.Searcher.searcher import Searcher
 from music.song_info import SongInfo
 from music.stats.music_database import MusicDatabase
 from domain.utilities import logerr, number_to_emojis
+from domain.secretConfig import secret_config
 
 
 class SongQuery:
@@ -31,7 +32,7 @@ class MusicCog(commands.Cog):
         self.current_song: Searcher = None
         self.manager: MusicDatabase = manager
         self.ytdl: Searcher = YTDLSource(source=None, song_info=SongInfo(), filename="")
-        self.vk: Searcher = VK(source=None, song_info=SongInfo(), filename="")
+        self._vk: Searcher = VK(source=None, song_info=SongInfo(), filename="")
         self.playlist = queue.Queue()  # of SongQueries
         self.is_playing = False  # Atomic
 
@@ -43,7 +44,10 @@ class MusicCog(commands.Cog):
     @commands.command()
     async def vk(self, ctx, *, query):
         """Playing song from vk"""
-        await self.play_with(self.vk, ctx, query)
+        if secret_config.vk() is None:
+            ctx.send("No vk credentials in .ini file")
+            return
+        await self.play_with(self._vk, ctx, query)
 
     async def play_with(self, searcher: Searcher, ctx, query, is_collect=False):
         await ctx.send(pm.SEARCHING)
@@ -181,7 +185,8 @@ class MusicCog(commands.Cog):
                 await ctx.send("You are not connected to a voice channel.")
                 raise commands.CommandError("Author not connected to a voice channel.")
         else:
-            await ctx.send("You are not connected to the my voice channel.")
+            if ctx.author.voice.channel != self.voiceClient.channel:
+                await ctx.send("You are not connected to the my voice channel.")
 
     @loop.before_invoke
     @skip.before_invoke

@@ -1,3 +1,4 @@
+import asyncio
 import os
 
 import discord
@@ -38,7 +39,7 @@ class VK(Searcher):
     async def download(cls, song_info: SongInfo, *, loop=None, stream=False) -> Searcher:
         """Overrides Searcher.download"""
         song_filename = find_free_name(song_info.title + ".mp3")
-        filename = load(song_info.download_link, song_filename)
+        filename = await load(song_info.download_link, song_filename)
         os.rename(filename, song_filename)
 
         return cls(source=discord.FFmpegPCMAudio(song_filename, **ffmpeg_options), song_info=song_info
@@ -64,7 +65,7 @@ class VK(Searcher):
             return None
 
 
-def load(inputs_path, outputs_path):
+async def load(inputs_path, outputs_path):
     """
     :param inputs_path: input file input dictionary format {file: operation}
     :param outputs_path: The output file is transferred to the dictionary format {file: operation}
@@ -77,5 +78,6 @@ def load(inputs_path, outputs_path):
                  }
     )
     print(f.cmd)
-    f.run()
+    a: asyncio.subprocess.Process = await f.run_async()
+    await a.wait()
     return outputs_path
