@@ -1,9 +1,11 @@
+import argparse
 import discord.abc
 from discord import Message
 from discord.ext import commands
 
 import domain.general_messages as gm
 import domain.utilities
+from music.stats.google_sheets_api import GoogleSheets
 from music.stats.music_database import MusicDatabase
 from secretConfig import discord_settings
 from message_handler import MessageHandler, is_from_music_channel, is_from_debug_channel
@@ -90,7 +92,7 @@ async def clearchannel(ctx: commands.Context):
 def main():
     domain.utilities.loginfo("started")
 
-    md = MusicDatabase()
+    md = MusicDatabase(GoogleSheets())
     bot.add_cog(md)
     bot.add_cog(MusicCog(bot, md))
     bot.add_cog(ChessManager())

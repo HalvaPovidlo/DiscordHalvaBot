@@ -1,21 +1,18 @@
 import random
+from datetime import date
+from time import localtime
 
 from discord.ext import commands
 
+import domain.general_messages as gm
+import secretConfig
+from domain.utilities import log_error_to_channel
+from domain.utilities import logerr
+from domain.utilities import loginfo
 from music.song_info import SongInfo
 from music.stats.database import Database
-from music.stats.google_sheets_api import GoogleSheets
 from music.stats.searcher import Searcher
 from music.stats.song import Song
-from domain.utilities import loginfo
-from domain.utilities import logerr
-from datetime import date
-from time import localtime
-import domain.general_messages as gm
-
-from domain.utilities import log_error_to_channel
-
-import secretConfig
 
 prefix = secretConfig.discord_settings["prefix"]
 
@@ -25,10 +22,11 @@ MAX_MESSAGE_LENGTH = 2000
 PREDICTS_NUMBER = 3
 PREDICT_LIMIT = 0.08
 
+DATABASE_UPDATE_TIMEOUT = 1  # minutes
 
 class MusicDatabase(commands.Cog):
-    def __init__(self):
-        self.db: Database = GoogleSheets()
+    def __init__(self, database: Database):
+        self.db: Database = database
         self.songs: {str: Song} = self.db.read_data()
         loginfo("Loaded " + str(len(self.songs)) + " songs")
         print("Loaded " + str(len(self.songs)) + " songs")
@@ -59,7 +57,7 @@ class MusicDatabase(commands.Cog):
         self.songs_list.sort(key=lambda x: int(x[1]), reverse=True)
 
     def _update_sheet(self):
-        if abs(localtime().tm_min - self._last_update) <= 1:
+        if abs(localtime().tm_min - self._last_update) <= DATABASE_UPDATE_TIMEOUT:
             return
 
         self._last_update = localtime().tm_min
@@ -70,9 +68,9 @@ class MusicDatabase(commands.Cog):
                 self.db.write_data(self.songs)
                 self._create_song_list()
                 self._any_updates = False
-            except Exception:
-                logerr("gs.write_data(songs_list)")
-                print("ERROR acquired when gs.write_data(songs_list)")
+            except Exception as e:
+                logerr(f"self.db.write_data(self.songs) {e}")
+                print(f"self.db.write_data(self.songs) {e}")
         else:
             loginfo("Nothing to update")
             print("Nothing to update")

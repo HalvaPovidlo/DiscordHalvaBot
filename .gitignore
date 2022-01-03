@@ -132,7 +132,7 @@ dmypy.json
 *credentials.json
 *token.pickle
 vk_config*.json
-source/secretConfig.py
+source/secret_config.ini
 source/dirty_talk_detector/secretData.csv
 
 # Idea
