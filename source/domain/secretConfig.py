@@ -4,7 +4,10 @@ from os import path
 
 config = configparser.ConfigParser()
 _dir = path.dirname(sys.modules['__main__'].__file__)
-config.read(path.join(_dir, 'secret_config.ini'))
+if path.exists(path.join(_dir, 'secret_config.ini')):
+    config.read(path.join(_dir, 'secret_config.ini'))
+else:
+    raise FileExistsError("No secret_config.ini found")
 
 discord_settings = {
     'token': config.get('discord', 'token'),

@@ -1,25 +1,35 @@
 import argparse
 
+import domain.utilities
 from bot import HalvaBot
 from chess.chess_manager import ChessManager
 from movie.movie_manager import MovieManager
 from music.stats.google_sheets_api import GoogleSheets
+from music.stats.local_json_db import JSONDatabase
 from music.stats.music_database import MusicDatabase
+
+GSHEET_OPTION = "gsheet"
+JSON_OPTION = "json"
 
 
 def main():
-    bot = HalvaBot(MusicDatabase(GoogleSheets()), ChessManager(), MovieManager())
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--database', default=JSON_OPTION
+                        , help=f"select which database to use: (default: {JSON_OPTION}) {GSHEET_OPTION}"
+                        , choices=[JSON_OPTION, GSHEET_OPTION])
+    args = parser.parse_args()
+    domain.utilities.loginfo(f"Starting with arguments:\n {args}")
+
+    db = JSONDatabase("music_stats.json")
+    if args.database == GSHEET_OPTION:
+        db = GoogleSheets()
+
+    bot = HalvaBot(MusicDatabase(db), ChessManager(), MovieManager())
     bot.run()
 
 
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser()
-
-    # "address" as positional argument
-    parser.add_argument("--test", default="True")
-    args = parser.parse_args()
-    print(args)
     try:
         main()
-    except Exception:
-        print("Errrir")
+    except Exception as e:
+        print(f"Error: {e}")
