@@ -1,7 +1,10 @@
 import configparser
+import sys
+from os import path
 
 config = configparser.ConfigParser()
-config.read('secret_config.ini')
+_dir = path.dirname(sys.modules['__main__'].__file__)
+config.read(path.join(_dir, 'secret_config.ini'))
 
 discord_settings = {
     'token': config.get('discord', 'token'),

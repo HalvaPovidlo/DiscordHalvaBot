@@ -5,7 +5,7 @@ from time import localtime
 from discord.ext import commands
 
 import domain.general_messages as gm
-import secretConfig
+from domain import secretConfig
 from domain.utilities import log_error_to_channel
 from domain.utilities import logerr
 from domain.utilities import loginfo
@@ -23,6 +23,7 @@ PREDICTS_NUMBER = 3
 PREDICT_LIMIT = 0.08
 
 DATABASE_UPDATE_TIMEOUT = 1  # minutes
+
 
 class MusicDatabase(commands.Cog):
     def __init__(self, database: Database):

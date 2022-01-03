@@ -3,7 +3,7 @@ from discord import Message
 
 import domain.general_messages as gm
 from dirty_talk_detector.dirty_talk_detector import detect
-from secretConfig import discord_settings
+from domain.secretConfig import discord_settings
 
 
 def is_from_debug_channel(msg: Message) -> bool:

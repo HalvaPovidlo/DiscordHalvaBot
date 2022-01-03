@@ -1,5 +1,6 @@
 import pickle
 import os.path
+import sys
 from enum import Enum
 from googleapiclient.discovery import build
 from google_auth_oauthlib.flow import InstalledAppFlow
@@ -7,8 +8,8 @@ from google.auth.transport.requests import Request
 
 from music.stats.database import Database
 from music.stats.song import Song
-from secretConfig import gsheets_settings
-from secretConfig import discord_settings
+from domain.secretConfig import gsheets_settings
+from domain.secretConfig import discord_settings
 from domain.utilities import loginfo
 
 DEBUG_MODE = discord_settings['debug']
@@ -76,7 +77,7 @@ class GoogleSheets(Database):
 
 def get_service():
     creds = None
-    file_dir = os.path.dirname(os.path.realpath(__file__))
+    file_dir = os.path.dirname(sys.modules['__main__'].__file__)
     creds_path = os.path.join(file_dir, 'credentials.json')
     token_path = os.path.join(file_dir, 'token.pickle')
     if os.path.exists(token_path):

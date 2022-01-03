@@ -4,21 +4,16 @@ from discord.ext import commands
 
 import domain.general_messages as gm
 import domain.utilities
-from secretConfig import discord_settings
+from music.player.cog import MusicCog
+from music.stats.music_database import MusicDatabase
+from domain.secretConfig import discord_settings
 from message_handler import MessageHandler, is_from_music_channel, is_from_debug_channel
 
-
+# Strange temporary solution of using global bot instance TODO
 bot: discord.ext.commands.Bot = commands.Bot(command_prefix=discord_settings['prefix'])
 bot.remove_command('help')
 
 handler = MessageHandler(bot)
-
-
-class HalvaBot:
-    def __init__(self, *cogs: commands.Cog):
-        for cog in cogs:
-            bot.add_cog(cog)
-        domain.utilities.loginfo("HalvaBot started!")
 
 
 async def on_message(message: Message):
@@ -79,12 +74,21 @@ async def clearchannel(ctx: commands.Context):
     messages = await channel.history(limit=200).flatten()
     for m in messages:
         m: Message = m
-        if m.author.bot or m.content.startswith("!"):
+        if m.author.bot or m.content.startswith("!") or m.content.startswith(discord_settings['prefix']):
             await m.delete()
 
 
-def main():
-    domain.utilities.loginfo("started")
+class HalvaBot:
+    def __init__(self, md: MusicDatabase,  *cogs: commands.Cog):
+        self.bot = bot
+        self.bot.add_cog(md)
+        # Bad TODO
+        self.bot.add_cog(MusicCog(self.bot, md))
 
+        for cog in cogs:
+            self.bot.add_cog(cog)
+        domain.utilities.loginfo("HalvaBot created!")
 
-    bot.run(discord_settings['token'])
+    def run(self):
+        domain.utilities.loginfo("HalvaBot running!")
+        self.bot.run(discord_settings['token'])

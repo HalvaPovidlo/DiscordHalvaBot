@@ -1,4 +1,4 @@
-import secretConfig
+from domain import secretConfig
 
 px = secretConfig.discord_settings["prefix"]
 

@@ -9,7 +9,7 @@ from domain.utilities import find_free_name, loginfo, logerr
 from music.player.Searcher.searcher import Searcher
 from music.song_info import SongInfo
 
-from secretConfig import vk
+from domain.secretConfig import vk
 
 stubfile = "stubname.mp3"
 

@@ -1,6 +1,6 @@
 import berserk
 from discord.ext import commands
-from secretConfig import CHESS_API_TOKEN
+from domain.secretConfig import CHESS_API_TOKEN
 
 from domain.utilities import log_error_to_channel
 
